@@ -76,3 +76,31 @@ jam(초성게임)
 - [ ] 개인전, 팀전
 - [ ] 해당 방 블랙리스트 입장 불가(redis 사용)
 
+# 필요한 기술 스택
+- Spring-boot(Java)
+- MySQL
+- Redis
+- WebSocket
+- JPA
+- Querydsl
+- Naver Search API
+- Kakao Oauth API or Naver Oauth API
+- ElasticSearch
+- JWT
+- Spring Security
+- Docker
+- GCP or AWS or Firebase
+
+### 게임하기
+- websocket (채팅)
+- naver search api (유저가 작성한 단어의 유무 체크)
+### 방 만들기
+- JPA
+### 방 참여하기
+- querydsl
+- elasticsearch
+- redis (블랙리스트 체크)
+### 유저
+- JWT
+- Spring Security
+- Kakao Oauth API or Naver Oauth API
