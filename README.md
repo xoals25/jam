@@ -4,6 +4,8 @@ jam(초성게임)
 
 # ERD
 https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
+![image](https://user-images.githubusercontent.com/68364917/236453794-864f1a0a-9880-4ae6-9c8e-1d82972f4e78.png)
+
 
 # 필수 기능
 ### 🎮 게임
