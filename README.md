@@ -26,6 +26,13 @@ https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
 }
 </pre>
 
+#### 게임 내 현재 순서
+<pre>
+{
+    "gameOrder::${roomId}": 현재 순서
+}
+</pre>
+
 #### 게임 내 채팅(신고 기능 추가 되면 저장할 예정)
 <pre>
 {
