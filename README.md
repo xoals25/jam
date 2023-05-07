@@ -2,10 +2,39 @@
 jam(초성게임)  
 ‘ㅇㄱ’, ‘ㅅㅈ’ 같은 자음을 주제로 한사람 한사람 단어를 말하며 이어나가며 마지막에 단어를 말하지 못한 사람이 지게 되는 혹은 가장 많이 말하는 사람이 이기는 게임입니다.
 
-# ERD
+# MainDB(Mysql)
+### ERD
 https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
-![image](https://user-images.githubusercontent.com/68364917/236453794-864f1a0a-9880-4ae6-9c8e-1d82972f4e78.png)
+![image](https://user-images.githubusercontent.com/68364917/236660555-4b92d823-65f9-49c4-9a97-e150d9b3b3e5.png)
 
+# MemoryDB(redis)
+### 사용할 기능들
+#### 게임 내 중복단어 체크
+<pre>
+{
+    "sameword::${roomId}" : [
+        {"userId": 유저 고유번호, "nickname": "유저 닉네임", "word": "작성단어"},
+        ...
+    ]
+}
+</pre>
+
+#### 참가자 수
+<pre>
+{
+    "participant::${roomId}": 참가자 수
+}
+</pre>
+
+#### 게임 내 채팅(신고 기능 추가 되면 저장할 예정)
+<pre>
+{
+    "chat::${roomId}": [
+        {"userId": 유저 고유번호, "nickname": "유저 닉네임", "message": "작성단어", "createdAt":"작성시간"},
+        ...
+    ]
+}
+</pre>
 
 # 필수 기능
 ### 🎮 게임
@@ -54,7 +83,7 @@ https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
 # 그 외 우선 순위 낮은 기능들
 ### 👥 유저
 - [ ] 블랙리스트 지정
-- [ ] 친구
+- [ ] 친구(양방향)
 
 ### 🎮 게임
 - [ ] 문제 틀린 사람은 탈락처리 (순서전)
