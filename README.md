@@ -72,6 +72,9 @@ https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
 - [ ] 방 검색 및 필터 기능
     - [ ] 검색 - elastic search 사용
     - [ ] 방 조회 및 필터querydsl 사용
+    
+#### 방 삭제
+- [ ] 방 삭제 (상태 변경)
 
 --- 
 
