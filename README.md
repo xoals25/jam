@@ -22,10 +22,7 @@ https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
 #### 참가자 수
 <pre>
 {
-    "participant::${roomId}": {
-        "currentNumber": 참가자 수,
-        "totalNumber": 총 허용 인원 수
-    }
+    "participant::${roomId}": 참가자 수
 }
 </pre>
 
