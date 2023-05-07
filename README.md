@@ -5,7 +5,7 @@ jam(초성게임)
 # MainDB(Mysql)
 ### ERD
 https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
-![image](https://user-images.githubusercontent.com/68364917/236663427-1c4fb653-024f-47ff-8027-906620d3c012.png)
+![image](https://user-images.githubusercontent.com/68364917/236667105-417adf9d-bad7-450d-9e24-2b6b67885608.png)
 
 # MemoryDB(redis)
 ### 사용할 기능들
