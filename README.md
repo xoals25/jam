@@ -94,6 +94,7 @@ https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
 ### 👥 유저
 - [ ] 블랙리스트 지정
 - [ ] 친구(양방향)
+    - 친구 초대
 
 ### 🎮 게임
 - [ ] 문제 틀린 사람은 탈락처리 (순서전)
