@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
 import com.tang.game.room.domain.Room;
-import com.tang.game.room.dto.CreateRoomForm;
+import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -74,8 +74,8 @@ class RoomServiceTest {
     return Room.from(getCreateRoomForm());
   }
 
-  private CreateRoomForm getCreateRoomForm() {
-    return CreateRoomForm.builder()
+  private RoomForm getCreateRoomForm() {
+    return RoomForm.builder()
         .userId(1L)
         .title("게임방 제목")
         .password("0123")
