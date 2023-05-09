@@ -41,7 +41,7 @@ class RoomControllerTest {
   @Test
   @DisplayName("성공 - 게임 방 생성")
   void
-  success_createRoom() throws Exception {
+  successCreateRoom() throws Exception {
     //given
 
     RoomForm form = RoomForm.builder()
@@ -66,7 +66,36 @@ class RoomControllerTest {
                 preprocessResponse(prettyPrint())
             )
         );
-    ;
+  }
+
+  @Test
+  @DisplayName("성공 - 게임 방 수정")
+  void
+  successUpdateRoom() throws Exception {
+    //given
+
+    RoomForm form = RoomForm.builder()
+        .userId(1L)
+        .title("게임방 제목")
+        .password("0123")
+        .limitedNumberPeople(8)
+        .gameType(GAME_ORDER)
+        .teamType(PERSONAL)
+        .build();
+
+    roomService.updateRoom(1L, 1L, form);
+    //when
+    //then
+    mockMvc.perform(post("/rooms/1"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "{class-name}/{method-name}",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint())
+            )
+        );
   }
 
 }

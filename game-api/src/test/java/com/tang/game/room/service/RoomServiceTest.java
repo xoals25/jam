@@ -4,6 +4,7 @@ import static com.tang.game.common.type.GameType.GAME_ORDER;
 import static com.tang.game.common.type.TeamType.PERSONAL;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -14,6 +15,7 @@ import com.tang.game.common.type.ErrorCode;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomRepository;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +43,7 @@ class RoomServiceTest {
     ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
 
     //when
-    roomService.createRoom(getCreateRoomForm());
+    roomService.createRoom(getRoomForm());
 
     //then
     verify(roomRepository, times(1)).save(captor.capture());
@@ -60,21 +62,94 @@ class RoomServiceTest {
     given(roomRepository.existsByTitleAndStatus(anyString(), any()))
         .willReturn(true);
 
+    //when
+    JamGameException exception = assertThrows(JamGameException.class,
+        () -> roomService.createRoom(getRoomForm()));
+
+    //then
+    assertEquals(ErrorCode.EXIST_ROOM_TITLE, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("성공 - 방 수정")
+  void successUpdateRoom() {
+    //given
+    given(roomRepository.findById(anyLong()))
+        .willReturn(Optional.of(getRoom()));
+
+    given(roomRepository.existsByTitleAndStatusAndIdNot(anyString(), any(), anyLong()))
+        .willReturn(false);
+
     ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
 
     //when
+    roomService.updateRoom(1L, 1L, getRoomForm("게임방 제목 변경"));
+
+    //then
+    verify(roomRepository, times(1)).save(captor.capture());
+    assertEquals(captor.getValue().getHostUserId(), 1L);
+    assertEquals(captor.getValue().getTitle(), "게임방 제목 변경");
+    assertEquals(captor.getValue().getPassword(), "0123");
+    assertEquals(captor.getValue().getLimitedNumberPeople(), 8);
+    assertEquals(captor.getValue().getTeamType(), PERSONAL);
+    assertEquals(captor.getValue().getGameType(), GAME_ORDER);
+  }
+
+  @Test
+  @DisplayName("실패 방 수정 - 존재하지 않는 방")
+  void failUpdateRoom_NotFoundRoom() {
+    //given
+    given(roomRepository.findById(anyLong()))
+        .willReturn(Optional.empty());
+
+    //when
     JamGameException exception = assertThrows(JamGameException.class,
-        () -> roomService.createRoom(getCreateRoomForm()));
+        () -> roomService.updateRoom(1L, 1L, getRoomForm()));
+
+    //then
+    assertEquals(ErrorCode.NOT_FOUND_ROOM, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("실패 방 수정 - 게임방 주인이 아님")
+  void failUpdateRoom_HostUnMatch() {
+    //given
+    given(roomRepository.findById(anyLong()))
+        .willReturn(Optional.of(getRoom()));
+
+    //when
+    JamGameException exception = assertThrows(JamGameException.class,
+        () -> roomService.updateRoom(2L, 1L, getRoomForm()));
+
+    //then
+    assertEquals(ErrorCode.USER_ROOM_HOST_UN_MATCH, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("실패 방 수정 - 중복 되는 방제목")
+  void failUpdateRoom_ExistRoomTitle() {
+    //given
+    given(roomRepository.existsByTitleAndStatusAndIdNot(anyString(), any(), anyLong()))
+        .willReturn(true);
+
+    given(roomRepository.findById(anyLong()))
+        .willReturn(Optional.of(getRoom()));
+
+    //when
+    JamGameException exception = assertThrows(JamGameException.class,
+        () -> roomService.updateRoom(1L, 1L, getRoomForm()));
 
     //then
     assertEquals(ErrorCode.EXIST_ROOM_TITLE, exception.getErrorCode());
   }
 
   private Room getRoom() {
-    return Room.from(getCreateRoomForm());
+    Room room = Room.from(getRoomForm());
+    room.setId(1L);
+    return room;
   }
 
-  private RoomForm getCreateRoomForm() {
+  private RoomForm getRoomForm() {
     return RoomForm.builder()
         .userId(1L)
         .title("게임방 제목")
@@ -85,4 +160,14 @@ class RoomServiceTest {
         .build();
   }
 
+  private RoomForm getRoomForm(String title) {
+    return RoomForm.builder()
+        .userId(1L)
+        .title(title)
+        .password("0123")
+        .limitedNumberPeople(8)
+        .gameType(GAME_ORDER)
+        .teamType(PERSONAL)
+        .build();
+  }
 }
