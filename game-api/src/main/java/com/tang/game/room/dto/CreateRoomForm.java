@@ -15,15 +15,16 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateRoomForm {
-    private Long userId;
 
-    private String title;
+  private Long userId;
 
-    private String password;
+  private String title;
 
-    private int limitedNumberPeople = 4;
+  private String password;
 
-    private GameType gameType = GameType.GAME_ORDER;
+  private int limitedNumberPeople = 4;
 
-    private TeamType teamType = TeamType.PERSONAL;
+  private GameType gameType = GameType.GAME_ORDER;
+
+  private TeamType teamType = TeamType.PERSONAL;
 }

@@ -15,11 +15,11 @@ import lombok.Setter;
 @Builder
 public class JamGameException extends RuntimeException {
 
-    private ErrorCode errorCode;
-    private String message;
+  private ErrorCode errorCode;
+  private String message;
 
-    public JamGameException(ErrorCode errorCode) {
-        this.errorCode = errorCode;
-        this.message = errorCode.getDescription();
-    }
+  public JamGameException(ErrorCode errorCode) {
+    this.errorCode = errorCode;
+    this.message = errorCode.getDescription();
+  }
 }

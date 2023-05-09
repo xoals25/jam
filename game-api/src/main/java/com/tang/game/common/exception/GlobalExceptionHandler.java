@@ -14,38 +14,38 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(JamGameException.class)
-    public ErrorResponse handleAccountException(JamGameException e) {
-        log.error("{} is occurred.", e.getErrorCode());
+  @ExceptionHandler(JamGameException.class)
+  public ErrorResponse handleAccountException(JamGameException e) {
+    log.error("{} is occurred.", e.getErrorCode());
 
-        return new ErrorResponse(e.getErrorCode(), e.getMessage());
-    }
+    return new ErrorResponse(e.getErrorCode(), e.getMessage());
+  }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ErrorResponse handleMethodArgumentNotValidException(
-            MethodArgumentNotValidException e
-    ) {
-        log.error("MethodArgumentNotValidException is occurred.", e);
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ErrorResponse handleMethodArgumentNotValidException(
+      MethodArgumentNotValidException e
+  ) {
+    log.error("MethodArgumentNotValidException is occurred.", e);
 
-        return new ErrorResponse(INVALID_REQUEST, INVALID_REQUEST.getDescription());
-    }
+    return new ErrorResponse(INVALID_REQUEST, INVALID_REQUEST.getDescription());
+  }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ErrorResponse handleDataIntegrityViolationException(
-            DataIntegrityViolationException e
-    ) {
-        log.error("DataIntegrityViolationException is occurred.", e);
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ErrorResponse handleDataIntegrityViolationException(
+      DataIntegrityViolationException e
+  ) {
+    log.error("DataIntegrityViolationException is occurred.", e);
 
-        return new ErrorResponse(INVALID_REQUEST, INVALID_REQUEST.getDescription());
-    }
+    return new ErrorResponse(INVALID_REQUEST, INVALID_REQUEST.getDescription());
+  }
 
-    @ExceptionHandler(Exception.class)
-    public ErrorResponse handleException(Exception e) {
-        log.error("Exception is occurred.", e);
+  @ExceptionHandler(Exception.class)
+  public ErrorResponse handleException(Exception e) {
+    log.error("Exception is occurred.", e);
 
-        return new ErrorResponse(
-                INTERNAL_SERVER_ERROR,
-                INTERNAL_SERVER_ERROR.getDescription()
-        );
-    }
+    return new ErrorResponse(
+        INTERNAL_SERVER_ERROR,
+        INTERNAL_SERVER_ERROR.getDescription()
+    );
+  }
 }

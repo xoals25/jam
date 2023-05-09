@@ -13,29 +13,29 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RoomService {
 
-    private final RoomRepository roomRepository;
+  private final RoomRepository roomRepository;
 
-    public void createRoom(CreateRoomForm form) {
-        if (roomRepository.existsByTitleAndStatus(form.getTitle(), RoomStatus.VALID)) {
-            throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
-        }
-
-        roomRepository.save(Room.from(form));
+  public void createRoom(CreateRoomForm form) {
+    if (roomRepository.existsByTitleAndStatus(form.getTitle(), RoomStatus.VALID)) {
+      throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
     }
 
-    public Object searchRooms() {
-        return null;
-    }
+    roomRepository.save(Room.from(form));
+  }
 
-    public Object searchRoom() {
-        return null;
-    }
+  public Object searchRooms() {
+    return null;
+  }
 
-    public Object updateRoom() {
-        return null;
-    }
+  public Object searchRoom() {
+    return null;
+  }
 
-    public Object deleteRoom() {
-        return null;
-    }
+  public Object updateRoom() {
+    return null;
+  }
+
+  public Object deleteRoom() {
+    return null;
+  }
 }

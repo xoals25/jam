@@ -29,36 +29,36 @@ import org.hibernate.envers.AuditOverride;
 @AuditOverride(forClass = BaseEntity.class)
 public class Room extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private Long userId;
+  private Long userId;
 
-    private String title;
+  private String title;
 
-    private String password;
+  private String password;
 
-    private int limitedNumberPeople;
+  private int limitedNumberPeople;
 
-    @Enumerated(EnumType.STRING)
-    private GameType gameType;
+  @Enumerated(EnumType.STRING)
+  private GameType gameType;
 
-    @Enumerated(EnumType.STRING)
-    private TeamType teamType;
+  @Enumerated(EnumType.STRING)
+  private TeamType teamType;
 
-    @Enumerated(EnumType.STRING)
-    private RoomStatus status;
+  @Enumerated(EnumType.STRING)
+  private RoomStatus status;
 
-    public static Room from(CreateRoomForm form) {
-        return Room.builder()
-            .userId(form.getUserId())
-            .title(form.getTitle())
-            .password(form.getPassword())
-            .limitedNumberPeople(form.getLimitedNumberPeople())
-            .gameType(form.getGameType())
-            .teamType(form.getTeamType())
-            .status(RoomStatus.VALID)
-            .build();
-    }
+  public static Room from(CreateRoomForm form) {
+    return Room.builder()
+        .userId(form.getUserId())
+        .title(form.getTitle())
+        .password(form.getPassword())
+        .limitedNumberPeople(form.getLimitedNumberPeople())
+        .gameType(form.getGameType())
+        .teamType(form.getTeamType())
+        .status(RoomStatus.VALID)
+        .build();
+  }
 }

@@ -28,44 +28,45 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureRestDocs
 @ExtendWith({RestDocumentationExtension.class})
 class RoomControllerTest {
-    @MockBean
-    private RoomService roomService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @MockBean
+  private RoomService roomService;
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @Test
-    @DisplayName("성공 - 게임 방 생성")
-    void
-    success_createRoom() throws Exception {
-        //given
+  @Autowired
+  private MockMvc mockMvc;
 
-        CreateRoomForm form = CreateRoomForm.builder()
-            .userId(1L)
-            .title("게임방 제목")
-            .password("0123")
-            .limitedNumberPeople(8)
-            .gameType(GAME_ORDER)
-            .teamType(PERSONAL)
-            .build();
+  @Test
+  @DisplayName("성공 - 게임 방 생성")
+  void
+  success_createRoom() throws Exception {
+    //given
 
-        roomService.createRoom(form);
-        //when
-        //then
-        mockMvc.perform(post("/rooms"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andDo(
-                document(
-                    "{class-name}/{method-name}",
-                    preprocessRequest(prettyPrint()),
-                    preprocessResponse(prettyPrint())
-                )
-            );
-        ;
-    }
+    CreateRoomForm form = CreateRoomForm.builder()
+        .userId(1L)
+        .title("게임방 제목")
+        .password("0123")
+        .limitedNumberPeople(8)
+        .gameType(GAME_ORDER)
+        .teamType(PERSONAL)
+        .build();
+
+    roomService.createRoom(form);
+    //when
+    //then
+    mockMvc.perform(post("/rooms"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "{class-name}/{method-name}",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint())
+            )
+        );
+    ;
+  }
 
 }

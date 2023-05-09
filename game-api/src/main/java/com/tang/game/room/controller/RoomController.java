@@ -19,36 +19,36 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RoomController {
 
-    private final RoomService roomService;
+  private final RoomService roomService;
 
-    @PostMapping()
-    public void createRoom(@RequestBody @Valid CreateRoomForm form) {
-        roomService.createRoom(form);
-    }
+  @PostMapping()
+  public void createRoom(@RequestBody @Valid CreateRoomForm form) {
+    roomService.createRoom(form);
+  }
 
-    @GetMapping
-    public ResponseEntity<?> searchRooms() {
-        return ResponseEntity.ok(roomService.searchRooms());
-    }
+  @GetMapping
+  public ResponseEntity<?> searchRooms() {
+    return ResponseEntity.ok(roomService.searchRooms());
+  }
 
-    @GetMapping("/{roomId}")
-    ResponseEntity<?> searchRoom(
-        @PathVariable Long roomId
-    ) {
-        return ResponseEntity.ok(roomService.searchRoom());
-    }
+  @GetMapping("/{roomId}")
+  ResponseEntity<?> searchRoom(
+      @PathVariable Long roomId
+  ) {
+    return ResponseEntity.ok(roomService.searchRoom());
+  }
 
-    @PutMapping ("/{roomId}")
-    ResponseEntity<?> updateRoom(
-        @PathVariable Long roomId
-    ) {
-        return ResponseEntity.ok(roomService.updateRoom());
-    }
+  @PutMapping("/{roomId}")
+  ResponseEntity<?> updateRoom(
+      @PathVariable Long roomId
+  ) {
+    return ResponseEntity.ok(roomService.updateRoom());
+  }
 
-    @DeleteMapping ("/{roomId}")
-    ResponseEntity<?> deleteRoom(
-        @PathVariable Long roomId
-    ) {
-        return ResponseEntity.ok(roomService.deleteRoom());
-    }
+  @DeleteMapping("/{roomId}")
+  ResponseEntity<?> deleteRoom(
+      @PathVariable Long roomId
+  ) {
+    return ResponseEntity.ok(roomService.deleteRoom());
+  }
 }
