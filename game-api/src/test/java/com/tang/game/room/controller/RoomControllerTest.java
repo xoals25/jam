@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tang.game.room.dto.CreateRoomForm;
+import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.service.RoomService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ class RoomControllerTest {
   success_createRoom() throws Exception {
     //given
 
-    CreateRoomForm form = CreateRoomForm.builder()
+    RoomForm form = RoomForm.builder()
         .userId(1L)
         .title("게임방 제목")
         .password("0123")

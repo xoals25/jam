@@ -3,7 +3,7 @@ package com.tang.game.room.service;
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.RoomStatus;
 import com.tang.game.room.domain.Room;
-import com.tang.game.room.dto.CreateRoomForm;
+import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomRepository;
 import com.tang.game.common.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ public class RoomService {
 
   private final RoomRepository roomRepository;
 
-  public void createRoom(CreateRoomForm form) {
+  public void createRoom(RoomForm form) {
     if (roomRepository.existsByTitleAndStatus(form.getTitle(), RoomStatus.VALID)) {
       throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
     }
