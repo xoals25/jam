@@ -39,16 +39,21 @@ public class RoomController {
   }
 
   @PutMapping("/{roomId}")
-  ResponseEntity<?> updateRoom(
-      @PathVariable Long roomId
+  void updateRoom(
+      @PathVariable Long roomId,
+      @RequestBody @Valid RoomForm form
   ) {
-    return ResponseEntity.ok(roomService.updateRoom());
+    // 임시로 작성
+    Long userId = 1L;
+
+    roomService.updateRoom(userId, roomId, form);
   }
 
   @DeleteMapping("/{roomId}")
   ResponseEntity<?> deleteRoom(
       @PathVariable Long roomId
   ) {
-    return ResponseEntity.ok(roomService.deleteRoom());
+    return null;
+//    return ResponseEntity.ok(roomService.deleteRoom(roomId));
   }
 }

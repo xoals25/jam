@@ -61,4 +61,12 @@ public class Room extends BaseEntity {
         .status(RoomStatus.VALID)
         .build();
   }
+
+  public void update(RoomForm form) {
+    setTitle(form.getTitle());
+    setPassword(form.getPassword());
+    setGameType(form.getGameType());
+    setTeamType(form.getTeamType());
+    setLimitedNumberPeople(form.getLimitedNumberPeople());
+  }
 }
