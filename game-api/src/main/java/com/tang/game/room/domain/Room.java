@@ -33,7 +33,7 @@ public class Room extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private Long userId;
+  private Long hostUserId;
 
   private String title;
 
@@ -52,7 +52,7 @@ public class Room extends BaseEntity {
 
   public static Room from(RoomForm form) {
     return Room.builder()
-        .userId(form.getUserId())
+        .hostUserId(form.getUserId())
         .title(form.getTitle())
         .password(form.getPassword())
         .limitedNumberPeople(form.getLimitedNumberPeople())

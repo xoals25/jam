@@ -45,7 +45,7 @@ class RoomServiceTest {
 
     //then
     verify(roomRepository, times(1)).save(captor.capture());
-    assertEquals(captor.getValue().getUserId(), 1L);
+    assertEquals(captor.getValue().getHostUserId(), 1L);
     assertEquals(captor.getValue().getTitle(), "게임방 제목");
     assertEquals(captor.getValue().getPassword(), "0123");
     assertEquals(captor.getValue().getLimitedNumberPeople(), 8);
