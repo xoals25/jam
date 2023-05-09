@@ -1,13 +1,11 @@
-package com.tang.jam;
+package com.tang.game;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class JamApplication {
-
+public class GameApiApplication {
     public static void main(String[] args) {
-        SpringApplication.run(JamApplication.class, args);
+        SpringApplication.run(GameApiApplication.class, args);
     }
-
 }
