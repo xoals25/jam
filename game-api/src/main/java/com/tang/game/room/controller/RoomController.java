@@ -46,9 +46,10 @@ public class RoomController {
   }
 
   @DeleteMapping("/{roomId}")
-  ResponseEntity<?> deleteRoom(
-      @PathVariable Long roomId
-  ) {
-    return ResponseEntity.ok(roomService.deleteRoom());
+  void deleteRoom(@PathVariable Long roomId) {
+    // 유저 기능 추가 되면 삭제 예정
+    Long userId = 1L;
+
+    roomService.deleteRoom(userId, roomId);
   }
 }
