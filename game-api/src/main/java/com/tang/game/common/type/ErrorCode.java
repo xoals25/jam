@@ -12,6 +12,8 @@ public enum ErrorCode {
   USER_NOT_FOUND("사용자가 없습니다."),
 
   // Room
+  USER_ROOM_HOST_UN_MATCH("게임방 주인이 아닙니다."),
+  NOT_FOUND_ROOM("존재하지 않는 방입니다."),
   EXIST_ROOM_TITLE("중복된 방 제목입니다.");
 
   private final String description;

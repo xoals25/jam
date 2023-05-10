@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 @Getter
 @Setter
@@ -23,7 +24,7 @@ public class RoomForm {
   @NotNull(message = "방 제목을 입력해주세요.")
   private String title;
 
-  @Max(value = 10, message = "방 비밀번호는 최대 10자리 입니다.")
+  @Length(max = 10, message = "방 비밀번호는 최대 10자리 입니다.")
   private String password;
 
   @Min(value = 1, message = "방 인원은 최소 1명 입니다.")
