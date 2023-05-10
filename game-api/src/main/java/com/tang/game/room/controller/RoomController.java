@@ -1,6 +1,6 @@
 package com.tang.game.room.controller;
 
-import com.tang.game.room.dto.CreateRoomForm;
+import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.service.RoomService;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class RoomController {
   private final RoomService roomService;
 
   @PostMapping()
-  public void createRoom(@RequestBody @Valid CreateRoomForm form) {
+  public void createRoom(@RequestBody @Valid RoomForm form) {
     roomService.createRoom(form);
   }
 
@@ -39,10 +39,14 @@ public class RoomController {
   }
 
   @PutMapping("/{roomId}")
-  ResponseEntity<?> updateRoom(
-      @PathVariable Long roomId
+  void updateRoom(
+      @PathVariable Long roomId,
+      @RequestBody @Valid RoomForm form
   ) {
-    return ResponseEntity.ok(roomService.updateRoom());
+    // 임시로 작성
+    Long userId = 1L;
+
+    roomService.updateRoom(userId, roomId, form);
   }
 
   @DeleteMapping("/{roomId}")

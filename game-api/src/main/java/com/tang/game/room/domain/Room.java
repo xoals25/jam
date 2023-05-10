@@ -4,7 +4,7 @@ import com.tang.core.domain.BaseEntity;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.RoomStatus;
 import com.tang.game.common.type.TeamType;
-import com.tang.game.room.dto.CreateRoomForm;
+import com.tang.game.room.dto.RoomForm;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -33,7 +33,7 @@ public class Room extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private Long userId;
+  private Long hostUserId;
 
   private String title;
 
@@ -50,9 +50,9 @@ public class Room extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private RoomStatus status;
 
-  public static Room from(CreateRoomForm form) {
+  public static Room from(RoomForm form) {
     return Room.builder()
-        .userId(form.getUserId())
+        .hostUserId(form.getUserId())
         .title(form.getTitle())
         .password(form.getPassword())
         .limitedNumberPeople(form.getLimitedNumberPeople())
@@ -60,5 +60,13 @@ public class Room extends BaseEntity {
         .teamType(form.getTeamType())
         .status(RoomStatus.VALID)
         .build();
+  }
+
+  public void update(RoomForm form) {
+    setTitle(form.getTitle());
+    setPassword(form.getPassword());
+    setGameType(form.getGameType());
+    setTeamType(form.getTeamType());
+    setLimitedNumberPeople(form.getLimitedNumberPeople());
   }
 }

@@ -5,7 +5,7 @@ import static com.tang.game.common.type.RoomStatus.DELETE;
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.RoomStatus;
 import com.tang.game.room.domain.Room;
-import com.tang.game.room.dto.CreateRoomForm;
+import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomRepository;
 import com.tang.game.common.type.ErrorCode;
 import java.util.Objects;
@@ -18,7 +18,7 @@ public class RoomService {
 
   private final RoomRepository roomRepository;
 
-  public void createRoom(CreateRoomForm form) {
+  public void createRoom(RoomForm form) {
     if (roomRepository.existsByTitleAndStatus(form.getTitle(), RoomStatus.VALID)) {
       throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
     }
@@ -34,8 +34,16 @@ public class RoomService {
     return null;
   }
 
-  public Object updateRoom() {
-    return null;
+  public void updateRoom(Long userId, Long roomId, RoomForm form) {
+    Room room = roomRepository.findById(roomId).orElseThrow(
+        () -> new JamGameException(ErrorCode.NOT_FOUND_ROOM)
+    );
+
+    validateUpdateRoom(room, form, userId);
+
+    room.update(form);
+
+    roomRepository.save(room);
   }
 
   public void deleteRoom(Long userId, Long roomId) {
@@ -52,6 +60,16 @@ public class RoomService {
   private void validateDeleteRoom(Long roomHostId, Long userId) {
     if (!Objects.equals(roomHostId, userId)) {
       throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
+    }
+  }
+
+  private void validateUpdateRoom(Room room, RoomForm form, Long userId) {
+    if (!Objects.equals(room.getHostUserId(), userId)) {
+      throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
+    }
+
+    if (roomRepository.existsByTitleAndStatusAndIdNot(form.getTitle(), RoomStatus.VALID, room.getId())) {
+      throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
     }
   }
 }

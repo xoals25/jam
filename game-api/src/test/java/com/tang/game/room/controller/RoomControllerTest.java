@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tang.game.room.dto.CreateRoomForm;
+import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.service.RoomService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -43,10 +43,10 @@ class RoomControllerTest {
   @Test
   @DisplayName("성공 - 게임 방 생성")
   void
-  success_createRoom() throws Exception {
+  successCreateRoom() throws Exception {
     //given
 
-    CreateRoomForm form = CreateRoomForm.builder()
+    RoomForm form = RoomForm.builder()
         .userId(1L)
         .title("게임방 제목")
         .password("0123")
@@ -59,6 +59,36 @@ class RoomControllerTest {
     //when
     //then
     mockMvc.perform(post("/rooms"))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andDo(
+            document(
+                "{class-name}/{method-name}",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint())
+            )
+        );
+  }
+
+  @Test
+  @DisplayName("성공 - 게임 방 수정")
+  void
+  successUpdateRoom() throws Exception {
+    //given
+
+    RoomForm form = RoomForm.builder()
+        .userId(1L)
+        .title("게임방 제목")
+        .password("0123")
+        .limitedNumberPeople(8)
+        .gameType(GAME_ORDER)
+        .teamType(PERSONAL)
+        .build();
+
+    roomService.updateRoom(1L, 1L, form);
+    //when
+    //then
+    mockMvc.perform(post("/rooms/1"))
         .andDo(print())
         .andExpect(status().isOk())
         .andDo(
