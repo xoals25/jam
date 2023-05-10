@@ -1,6 +1,7 @@
 package com.tang.game.room.service;
 
 import static com.tang.game.common.type.GameType.GAME_ORDER;
+import static com.tang.game.common.type.RoomStatus.DELETE;
 import static com.tang.game.common.type.TeamType.PERSONAL;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -12,6 +13,7 @@ import static org.mockito.Mockito.verify;
 
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
+import com.tang.game.common.type.RoomStatus;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomRepository;
@@ -141,6 +143,53 @@ class RoomServiceTest {
 
     //then
     assertEquals(ErrorCode.EXIST_ROOM_TITLE, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("성공 방 삭제")
+  void successDeleteRoom() {
+    //given
+    given(roomRepository.findByIdAndStatus(anyLong(), any()))
+        .willReturn(Optional.ofNullable(getRoom()));
+
+    ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
+
+    //when
+    roomService.deleteRoom(1L, 1L);
+
+    //then
+    verify(roomRepository, times(1)).save(captor.capture());
+    assertEquals(captor.getValue().getStatus(), DELETE);
+  }
+
+  @Test
+  @DisplayName("실패 방 삭제 - 존재하지 않는 방")
+  void failDeleteRoom_NotFoundRoom() {
+    //given
+    given(roomRepository.findByIdAndStatus(anyLong(), any()))
+        .willReturn(Optional.empty());
+
+    //when
+    JamGameException exception = assertThrows(JamGameException.class,
+        () -> roomService.deleteRoom(1L, 1L));
+
+    //then
+    assertEquals(ErrorCode.NOT_FOUND_ROOM, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("실패 방 삭제 - 호스트 불일치")
+  void failDeleteRoom_RoomHostUnMatch() {
+    //given
+    given(roomRepository.findByIdAndStatus(anyLong(), any()))
+        .willReturn(Optional.ofNullable(getRoom()));
+
+    //when
+    JamGameException exception = assertThrows(JamGameException.class,
+        () -> roomService.deleteRoom(2L, 1L));
+
+    //then
+    assertEquals(ErrorCode.USER_ROOM_HOST_UN_MATCH, exception.getErrorCode());
   }
 
   private Room getRoom() {
