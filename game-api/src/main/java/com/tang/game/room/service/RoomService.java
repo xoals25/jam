@@ -8,6 +8,7 @@ import com.tang.game.room.domain.Room;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomRepository;
 import com.tang.game.common.type.ErrorCode;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,17 +51,14 @@ public class RoomService {
     Room room = roomRepository.findByIdAndStatus(roomId, RoomStatus.VALID)
             .orElseThrow(() -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
 
-    validateDeleteRoom(room.getHostUserId(), userId);
+    if (!Objects.equals(room.getHostUserId(), userId)) {
+      throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
+    }
 
+    room.setDeletedAt(LocalDateTime.now());
     room.setStatus(DELETE);
 
     roomRepository.save(room);
-  }
-
-  private void validateDeleteRoom(Long roomHostId, Long userId) {
-    if (!Objects.equals(roomHostId, userId)) {
-      throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
-    }
   }
 
   private void validateUpdateRoom(Room room, RoomForm form, Long userId) {
