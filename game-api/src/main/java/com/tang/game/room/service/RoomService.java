@@ -50,7 +50,7 @@ public class RoomService {
     Room room = roomRepository.findByIdAndStatus(roomId, RoomStatus.VALID)
             .orElseThrow(() -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
 
-    validateDeleteRoom(room.getUserId(), userId);
+    validateDeleteRoom(room.getHostUserId(), userId);
 
     room.setStatus(DELETE);
 
