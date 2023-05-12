@@ -1,4 +1,5 @@
 rootProject.name = 'jam'
 include 'game-api'
 include 'core'
+include 'chat-api'
 
