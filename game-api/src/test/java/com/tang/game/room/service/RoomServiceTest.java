@@ -3,7 +3,9 @@ package com.tang.game.room.service;
 import static com.tang.game.common.type.GameType.GAME_ORDER;
 import static com.tang.game.common.type.RoomStatus.DELETE;
 import static com.tang.game.common.type.TeamType.PERSONAL;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -13,11 +15,11 @@ import static org.mockito.Mockito.verify;
 
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
-import com.tang.game.common.type.RoomStatus;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomRepository;
 import java.util.Optional;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +33,9 @@ class RoomServiceTest {
 
   @Mock
   private RoomRepository roomRepository;
+
+  @Mock
+  private EntityManager entityManager;
 
   @InjectMocks
   private RoomService roomService;
@@ -149,8 +154,9 @@ class RoomServiceTest {
   @DisplayName("성공 방 삭제")
   void successDeleteRoom() {
     //given
+    Room room = getRoom();
     given(roomRepository.findByIdAndStatus(anyLong(), any()))
-        .willReturn(Optional.ofNullable(getRoom()));
+        .willReturn(Optional.of(room));
 
     ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
 
@@ -159,7 +165,9 @@ class RoomServiceTest {
 
     //then
     verify(roomRepository, times(1)).save(captor.capture());
+
     assertEquals(captor.getValue().getStatus(), DELETE);
+    assertNotNull(captor.getValue().getDeletedAt());
   }
 
   @Test

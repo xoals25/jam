@@ -5,6 +5,7 @@ import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.RoomStatus;
 import com.tang.game.common.type.TeamType;
 import com.tang.game.room.dto.RoomForm;
+import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -17,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.AuditOverride;
 
 @Getter
@@ -49,6 +51,8 @@ public class Room extends BaseEntity {
 
   @Enumerated(EnumType.STRING)
   private RoomStatus status;
+
+  private LocalDateTime deletedAt;
 
   public static Room from(RoomForm form) {
     return Room.builder()
