@@ -3,7 +3,8 @@ package com.tang.game.room.service;
 import static com.tang.game.common.type.GameType.GAME_ORDER;
 import static com.tang.game.common.type.RoomStatus.DELETE;
 import static com.tang.game.common.type.TeamType.PERSONAL;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -13,10 +14,15 @@ import static org.mockito.Mockito.verify;
 
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
-import com.tang.game.common.type.RoomStatus;
+import com.tang.game.common.type.GameType;
+import com.tang.game.common.type.TeamType;
 import com.tang.game.room.domain.Room;
+import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
+import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +31,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class RoomServiceTest {
@@ -34,6 +44,10 @@ class RoomServiceTest {
 
   @InjectMocks
   private RoomService roomService;
+
+  @Mock
+  private RoomQuerydsl roomQuerydsl;
+
 
   @Test
   @DisplayName("성공 - 방 생성")
@@ -85,7 +99,10 @@ class RoomServiceTest {
     ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
 
     //when
-    roomService.updateRoom(1L, 1L, getRoomForm("게임방 제목 변경"));
+    RoomForm roomForm = getRoomForm();
+    roomForm.setTitle("게임방 제목 변경");
+
+    roomService.updateRoom(1L, 1L, roomForm);
 
     //then
     verify(roomRepository, times(1)).save(captor.capture());
@@ -150,7 +167,7 @@ class RoomServiceTest {
   void successDeleteRoom() {
     //given
     given(roomRepository.findByIdAndStatus(anyLong(), any()))
-        .willReturn(Optional.ofNullable(getRoom()));
+        .willReturn(Optional.of(getRoom()));
 
     ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
 
@@ -182,7 +199,7 @@ class RoomServiceTest {
   void failDeleteRoom_RoomHostUnMatch() {
     //given
     given(roomRepository.findByIdAndStatus(anyLong(), any()))
-        .willReturn(Optional.ofNullable(getRoom()));
+        .willReturn(Optional.of(getRoom()));
 
     //when
     JamGameException exception = assertThrows(JamGameException.class,
@@ -190,6 +207,68 @@ class RoomServiceTest {
 
     //then
     assertEquals(ErrorCode.USER_ROOM_HOST_UN_MATCH, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("성공 방 리스트 조회")
+  void successSearchRooms() {
+    //given
+    List<RoomDto> roomDtos = new ArrayList<>();
+
+    for (long i = 1; i <= 3; i++) {
+      roomDtos.add(RoomDto.builder()
+          .id(i)
+          .title("게임 방 제목 입니다.")
+          .hostUserId(i)
+          .gameType(GAME_ORDER)
+          .teamType(PERSONAL)
+          .limitedNumberPeople(4)
+          .password("123")
+          .build());
+    }
+
+    given(roomQuerydsl.findAllByTitleAndStatus(
+        anyString(),
+        any(GameType.class),
+        any(TeamType.class),
+        any(Pageable.class)
+    )).willReturn(new PageImpl<>(roomDtos, PageRequest.of(0, 5), 3));
+
+    //when
+    Page<RoomDto> response = roomService.searchRooms(
+        "게임",
+        GAME_ORDER,
+        PERSONAL,
+        PageRequest.of(0, 3)
+    );
+
+    //then
+    assertEquals(response.getContent().size(), 3);
+    assertEquals(response.getContent().get(0).getId(), 1L);
+    assertEquals(response.getContent().get(0).getPassword(), "123");
+    assertEquals(response.getContent().get(0).getTitle(), "게임 방 제목 입니다.");
+    assertEquals(response.getContent().get(0).getGameType(), GAME_ORDER);
+    assertEquals(response.getContent().get(0).getTeamType(), PERSONAL);
+    assertEquals(response.getContent().get(0).getLimitedNumberPeople(), 4);
+  }
+
+  @Test
+  @DisplayName("성공 방 상세 조회")
+  void successSearchRoom() {
+    //given
+    given(roomQuerydsl.findByTitleAndStatus(anyLong()))
+        .willReturn(Optional.ofNullable(getRoomDto()));
+
+    //when
+    RoomDto roomDto = roomService.searchRoom(1L);
+
+    //then
+    assertEquals(roomDto.getId(), 1L);
+    assertEquals(roomDto.getPassword(), "123");
+    assertEquals(roomDto.getTitle(), "게임 방 제목 입니다.");
+    assertEquals(roomDto.getGameType(), GAME_ORDER);
+    assertEquals(roomDto.getTeamType(), PERSONAL);
+    assertEquals(roomDto.getLimitedNumberPeople(), 4);
   }
 
   private Room getRoom() {
@@ -209,14 +288,15 @@ class RoomServiceTest {
         .build();
   }
 
-  private RoomForm getRoomForm(String title) {
-    return RoomForm.builder()
-        .userId(1L)
-        .title(title)
-        .password("0123")
-        .limitedNumberPeople(8)
+  private RoomDto getRoomDto() {
+    return RoomDto.builder()
+        .id(1L)
+        .title("게임 방 제목 입니다.")
+        .hostUserId(1L)
         .gameType(GAME_ORDER)
         .teamType(PERSONAL)
+        .limitedNumberPeople(4)
+        .password("123")
         .build();
   }
 }

@@ -3,19 +3,30 @@ package com.tang.game.room.controller;
 
 import static com.tang.game.common.type.GameType.GAME_ORDER;
 import static com.tang.game.common.type.TeamType.PERSONAL;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tang.game.common.type.GameType;
+import com.tang.game.common.type.TeamType;
+import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.service.RoomService;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +34,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(RoomController.class)
@@ -33,9 +49,6 @@ class RoomControllerTest {
 
   @MockBean
   private RoomService roomService;
-
-  @Autowired
-  private ObjectMapper objectMapper;
 
   @Autowired
   private MockMvc mockMvc;
@@ -116,6 +129,146 @@ class RoomControllerTest {
                 "{class-name}/{method-name}",
                 preprocessRequest(prettyPrint()),
                 preprocessResponse(prettyPrint())
+            )
+        );
+  }
+
+  @Test
+  @DisplayName("성공 게임 방 목록 조회")
+  void
+  successSearchRooms() throws Exception {
+    //given
+    List<RoomDto> roomDtos = new ArrayList<>();
+
+    for (long i = 1; i <= 3; i++) {
+      roomDtos.add(RoomDto.builder()
+          .id(i)
+          .title("게임 방 제목 입니다.")
+          .hostUserId(i)
+          .gameType(GAME_ORDER)
+          .teamType(PERSONAL)
+          .limitedNumberPeople(4)
+          .password("123")
+          .build());
+    }
+
+    given(roomService.searchRooms(
+        anyString(),
+        any(GameType.class),
+        any(TeamType.class),
+        any(Pageable.class)
+    )).willReturn(new PageImpl<>(roomDtos, PageRequest.of(0, 5), 3));
+
+    //when
+    //then
+    mockMvc.perform(get("/rooms")
+            .param("keyword", "게임")
+            .param("gameType", "GAME_ORDER")
+            .param("teamType", "PERSONAL")
+            .param("page", "0")
+            .param("size", "3")
+            .contentType(MediaType.APPLICATION_JSON)
+        )
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("content[0].id").value(1L))
+        .andExpect(jsonPath("content[0].title").value("게임 방 제목 입니다."))
+        .andExpect(jsonPath("content[0].hostUserId").value(1L))
+        .andExpect(jsonPath("content[0].gameType").value("GAME_ORDER"))
+        .andExpect(jsonPath("content[0].teamType").value("PERSONAL"))
+        .andExpect(jsonPath("content[0].limitedNumberPeople").value(4))
+        .andExpect(jsonPath("content[0].password").value("123"))
+        .andDo(
+            document(
+                "{class-name}/{method-name}",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                relaxedResponseFields(
+                    fieldWithPath("content[].id").type(JsonFieldType.NUMBER)
+                        .description("게임 방 id"),
+                    fieldWithPath("content[].title").type(JsonFieldType.STRING)
+                        .description("게임 방 제목"),
+                    fieldWithPath("content[].hostUserId").type(JsonFieldType.NUMBER)
+                        .description("게임 방 호스트 고유 번호"),
+                    fieldWithPath("content[].gameType").type(JsonFieldType.STRING)
+                        .description("게임 타입"),
+                    fieldWithPath("content[].teamType").type(JsonFieldType.STRING)
+                        .description("게임 팀 타입"),
+                    fieldWithPath("content[].limitedNumberPeople").type(JsonFieldType.NUMBER)
+                        .description("게임 방 인원 제한"),
+                    fieldWithPath("content[].password").type(JsonFieldType.STRING)
+                        .description("게임 방 암호"),
+                    fieldWithPath("first").type(JsonFieldType.BOOLEAN)
+                        .description("첫번째 페이지인지 여부"),
+                    fieldWithPath("last").type(JsonFieldType.BOOLEAN)
+                        .description("마지막 페이지인지 여부"),
+                    fieldWithPath("totalElements").type(
+                            JsonFieldType.NUMBER)
+                        .description("검색 데이터 전체 개수"),
+                    fieldWithPath("totalElements").type(
+                            JsonFieldType.NUMBER)
+                        .description("검색 데이터 전체 개수"),
+                    fieldWithPath("totalPages").type(JsonFieldType.NUMBER)
+                        .description("검색 데이터 전체 페이지 수"),
+                    fieldWithPath("size").type(JsonFieldType.NUMBER)
+                        .description("요청 데이터 수"),
+                    fieldWithPath("numberOfElements").type(
+                            JsonFieldType.NUMBER)
+                        .description("현재 페이지에서 보여지는 데이터 수")
+                )
+            )
+        );
+  }
+
+  @Test
+  @DisplayName("성공 게임 상세 조회")
+  void
+  successSearchRoom() throws Exception {
+    //given
+    given(roomService.searchRoom(anyLong()))
+        .willReturn(RoomDto.builder()
+            .id(1L)
+            .title("게임 방 제목 입니다.")
+            .hostUserId(1L)
+            .gameType(GAME_ORDER)
+            .teamType(PERSONAL)
+            .limitedNumberPeople(4)
+            .password("123")
+            .build());
+
+    //when
+    //then
+    mockMvc.perform(get("/rooms/{roomId}", 1L))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(1L))
+        .andExpect(jsonPath("$.title").value("게임 방 제목 입니다."))
+        .andExpect(jsonPath("$.hostUserId").value(1L))
+        .andExpect(jsonPath("$.gameType").value("GAME_ORDER"))
+        .andExpect(jsonPath("$.teamType").value("PERSONAL"))
+        .andExpect(jsonPath("$.limitedNumberPeople").value(4))
+        .andExpect(jsonPath("$.password").value("123"))
+        .andDo(
+            document(
+                "{class-name}/{method-name}",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint()),
+                relaxedResponseFields(
+                    fieldWithPath("id").type(JsonFieldType.NUMBER)
+                        .description("게임 방 id"),
+                    fieldWithPath("title").type(JsonFieldType.STRING)
+                        .description("게임 방 제목"),
+                    fieldWithPath("hostUserId").type(JsonFieldType.NUMBER)
+                        .description("게임 방 호스트 고유 번호"),
+                    fieldWithPath("gameType").type(JsonFieldType.STRING)
+                        .description("게임 타입"),
+                    fieldWithPath("teamType").type(JsonFieldType.STRING)
+                        .description("게임 팀 타입"),
+                    fieldWithPath("limitedNumberPeople").type(JsonFieldType.NUMBER)
+                        .description("게임 방 인원 제한"),
+                    fieldWithPath("password").type(JsonFieldType.STRING)
+                        .description("게임 방 암호")
+                )
             )
         );
   }
