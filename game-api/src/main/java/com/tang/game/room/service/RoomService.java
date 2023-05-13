@@ -3,14 +3,20 @@ package com.tang.game.room.service;
 import static com.tang.game.common.type.RoomStatus.DELETE;
 
 import com.tang.game.common.exception.JamGameException;
+import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.RoomStatus;
+import com.tang.game.common.type.TeamType;
 import com.tang.game.room.domain.Room;
+import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
+import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
 import com.tang.game.common.type.ErrorCode;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +24,8 @@ import org.springframework.stereotype.Service;
 public class RoomService {
 
   private final RoomRepository roomRepository;
+
+  private final RoomQuerydsl roomQuerydsl;
 
   public void createRoom(RoomForm form) {
     if (roomRepository.existsByTitleAndStatus(form.getTitle(), RoomStatus.VALID)) {
@@ -27,12 +35,18 @@ public class RoomService {
     roomRepository.save(Room.from(form));
   }
 
-  public Object searchRooms() {
-    return null;
+  public Page<RoomDto> searchRooms(
+      String keyword,
+      GameType gameType,
+      TeamType teamType,
+      Pageable pageable
+  ) {
+    return roomQuerydsl.findAllByTitleAndStatus(keyword, gameType, teamType, pageable);
   }
 
-  public Object searchRoom() {
-    return null;
+  public RoomDto searchRoom(Long roomId) {
+    return roomQuerydsl.findByTitleAndStatus(roomId).orElseThrow(
+        () -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
   }
 
   public void updateRoom(Long userId, Long roomId, RoomForm form) {

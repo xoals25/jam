@@ -29,9 +29,9 @@ public class RoomForm {
 
   @Min(value = 1, message = "방 인원은 최소 1명 입니다.")
   @Max(value = 8, message = "방 인원은 최대 8명 입니다.")
-  private int limitedNumberPeople = 4;
+  private int limitedNumberPeople;
 
-  private GameType gameType = GameType.GAME_ORDER;
+  private GameType gameType;
 
-  private TeamType teamType = TeamType.PERSONAL;
+  private TeamType teamType;
 }
