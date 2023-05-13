@@ -3,11 +3,10 @@ plugins {
     id 'org.springframework.boot' version '2.7.11'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
-    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
-group = 'com.tang.game'
-version = '0.0.1-SNAPSHOT'
+group 'com.tang.chat'
+version '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
@@ -28,6 +27,7 @@ ext {
 
 dependencies {
     implementation project(':core')
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
@@ -38,15 +38,14 @@ dependencies {
 
     annotationProcessor 'org.projectlombok:lombok'
 
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
     testImplementation 'org.springframework.security:spring-security-test'
+
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
-
-    implementation 'org.springframework.data:spring-data-envers'
-
-    implementation "com.querydsl:querydsl-jpa:5.0.0"
-    implementation "com.querydsl:querydsl-apt:5.0.0"
 }
 
 tasks.named('test') {
@@ -65,20 +64,3 @@ tasks.named('bootJar') {
         into "static/docs"
     }
 }
-
-//querydsl 추가 시작
-def querydslDir = "$buildDir/generated/querydsl"
-querydsl {
-    jpa = true
-    querydslSourcesDir = querydslDir
-}
-sourceSets {
-    main.java.srcDir querydslDir
-}
-configurations {
-    querydsl.extendsFrom compileClasspath
-}
-compileQuerydsl {
-    options.annotationProcessorPath = configurations.querydsl
-}
-//querydsl 추가 끝
