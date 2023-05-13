@@ -69,9 +69,8 @@ public class RoomService {
       throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
     }
 
+    room.setStatus(RoomStatus.DELETE);
     room.setDeletedAt(LocalDateTime.now());
-    room.setStatus(DELETE);
-
     roomRepository.save(room);
   }
 
