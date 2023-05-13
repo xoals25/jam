@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class ChatDataSourceConfig {
   @Bean
   @Primary
-  @ConfigurationProperties("datasource.chat")
+  @ConfigurationProperties("spring.datasource.chat")
   public DataSourceProperties chatDataSourceProperties() {
     return new DataSourceProperties();
   }

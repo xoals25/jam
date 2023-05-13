@@ -10,7 +10,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -26,14 +25,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 )
 public class DictionaryDataSourceConfig {
   @Bean
-  @Primary
-  @ConfigurationProperties("datasource.dictionary")
+  @ConfigurationProperties("spring.datasource.dictionary")
   public DataSourceProperties dictionaryDataSourceProperties() {
     return new DataSourceProperties();
   }
 
   @Bean
-  @Primary
   public DataSource dictionaryDataSource() {
     return dictionaryDataSourceProperties()
         .initializeDataSourceBuilder()
@@ -42,7 +39,6 @@ public class DictionaryDataSourceConfig {
   }
 
   @Bean(name = "dictionaryEntityManager")
-  @Primary
   public LocalContainerEntityManagerFactoryBean dictionaryEntityManager(
       EntityManagerFactoryBuilder builder
   ) {
@@ -51,7 +47,6 @@ public class DictionaryDataSourceConfig {
   }
 
   @Bean(name = "dictionaryTransactionManager")
-  @Primary
   public PlatformTransactionManager dictionaryTransactionManager(
       @Qualifier("dictionaryEntityManager")
       LocalContainerEntityManagerFactoryBean entityManagerFactoryBean
