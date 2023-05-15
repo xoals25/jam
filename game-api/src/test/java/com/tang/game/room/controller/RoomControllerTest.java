@@ -4,13 +4,16 @@ package com.tang.game.room.controller;
 import static com.tang.game.common.type.GameType.GAME_ORDER;
 import static com.tang.game.common.type.TeamType.PERSONAL;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -118,6 +121,29 @@ class RoomControllerTest {
                 preprocessResponse(prettyPrint())
             )
         );
+  }
+
+  @Test
+  @DisplayName("성공 참가자 확인")
+  void successIsRoomParticipant() throws Exception {
+    //given
+    given(roomService.isRoomParticipant(anyLong(), anyLong()))
+        .willReturn(true);
+
+    //when
+    //then
+    mockMvc.perform(get("/rooms/{roomId}/participants/{participantUserId}", 1L, 1L))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(true))
+        .andDo(
+            document(
+                "{class-name}/{method-name}",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint())
+            )
+        );
+
   }
 
 }
