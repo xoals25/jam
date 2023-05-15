@@ -3,6 +3,7 @@ package com.tang.game.room.service;
 import static com.tang.game.common.type.GameType.GAME_ORDER;
 import static com.tang.game.common.type.RoomStatus.DELETE;
 import static com.tang.game.common.type.TeamType.PERSONAL;
+import static com.tang.game.participant.type.ParticipantStatus.WAIT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,6 +19,7 @@ import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.TeamType;
+import com.tang.game.participant.domain.Participant;
 import com.tang.game.participant.repository.ParticipantRepository;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.dto.RoomDto;
@@ -63,19 +65,29 @@ class RoomServiceTest {
     given(roomRepository.existsByTitleAndStatus(anyString(), any()))
         .willReturn(false);
 
-    ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
+    given(roomRepository.save(any(Room.class)))
+        .willReturn(getRoom());
+
+    ArgumentCaptor<Room> roomCaptor = ArgumentCaptor.forClass(Room.class);
+    ArgumentCaptor<Participant> participantCaptor = ArgumentCaptor.forClass(Participant.class);
 
     //when
     roomService.createRoom(getRoomForm());
 
     //then
-    verify(roomRepository, times(1)).save(captor.capture());
-    assertEquals(captor.getValue().getHostUserId(), 1L);
-    assertEquals(captor.getValue().getTitle(), "게임방 제목");
-    assertEquals(captor.getValue().getPassword(), "0123");
-    assertEquals(captor.getValue().getLimitedNumberPeople(), 8);
-    assertEquals(captor.getValue().getTeamType(), PERSONAL);
-    assertEquals(captor.getValue().getGameType(), GAME_ORDER);
+    verify(roomRepository, times(1)).save(roomCaptor.capture());
+    verify(participantRepository, times(1)).save(participantCaptor.capture());
+    assertEquals(roomCaptor.getValue().getHostUserId(), 1L);
+    assertEquals(roomCaptor.getValue().getTitle(), "게임방 제목");
+    assertEquals(roomCaptor.getValue().getPassword(), "0123");
+    assertEquals(roomCaptor.getValue().getLimitedNumberPeople(), 8);
+    assertEquals(roomCaptor.getValue().getTeamType(), PERSONAL);
+    assertEquals(roomCaptor.getValue().getGameType(), GAME_ORDER);
+
+    assertEquals(participantCaptor.getValue().getGameOrder(), 1);
+    assertEquals(participantCaptor.getValue().getStatus(), WAIT);
+    assertEquals(participantCaptor.getValue().getUserId(), roomCaptor.getValue().getHostUserId());
+    assertEquals(participantCaptor.getValue().getRoom().getId(), 1L);
   }
 
   @Test
