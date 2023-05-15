@@ -294,7 +294,7 @@ class RoomServiceTest {
   @DisplayName("성공 방 상세 조회")
   void successSearchRoom() {
     //given
-    given(roomQuerydsl.findByTitleAndStatus(anyLong()))
+    given(roomQuerydsl.findByIdAndStatus(anyLong()))
         .willReturn(Optional.ofNullable(getRoomDto()));
 
     //when

@@ -56,7 +56,7 @@ public class RoomService {
   }
 
   public RoomDto searchRoom(Long roomId) {
-    return roomQuerydsl.findByTitleAndStatus(roomId).orElseThrow(
+    return roomQuerydsl.findByIdAndStatus(roomId).orElseThrow(
         () -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
   }
 
