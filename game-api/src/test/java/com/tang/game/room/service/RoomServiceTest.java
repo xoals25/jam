@@ -24,10 +24,10 @@ import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,9 +48,6 @@ class RoomServiceTest {
 
   @Mock
   private ParticipantRepository participantRepository;
-
-  @Mock
-  private EntityManager entityManager;
 
   @InjectMocks
   private RoomService roomService;
@@ -186,7 +183,10 @@ class RoomServiceTest {
     roomService.deleteRoom(1L, 1L);
 
     //then
-    verify(roomRepository, times(1)).save(captor.capture());
+    verify(roomRepository, times(1)).delete(captor.capture());
+
+    captor.getValue().setStatus(DELETE);
+    captor.getValue().setDeletedAt(LocalDateTime.now());
 
     assertEquals(captor.getValue().getStatus(), DELETE);
     assertNotNull(captor.getValue().getDeletedAt());
