@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -49,6 +50,9 @@ public class Room extends BaseEntity {
 
   @OneToMany(mappedBy = "room", orphanRemoval = true)
   private List<Participant> participants;
+
+  @OneToOne(mappedBy = "room", orphanRemoval = true)
+  private RoomGameStatus roomGameStatus;
 
   @Enumerated(EnumType.STRING)
   private GameType gameType;
