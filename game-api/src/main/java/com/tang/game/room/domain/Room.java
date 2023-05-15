@@ -29,6 +29,7 @@ import org.hibernate.envers.AuditOverride;
 @Entity
 @ToString
 @AuditOverride(forClass = BaseEntity.class)
+@SQLDelete(sql = "UPDATE room SET deleted_at = current_timestamp, status = 'DELETE' WHERE id = ?")
 public class Room extends BaseEntity {
 
   @Id
