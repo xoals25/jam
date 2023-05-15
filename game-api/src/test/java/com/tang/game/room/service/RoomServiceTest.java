@@ -6,6 +6,7 @@ import static com.tang.game.common.type.TeamType.PERSONAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -13,6 +14,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.tang.core.repository.ParticipantRepository;
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
@@ -43,6 +45,9 @@ class RoomServiceTest {
 
   @Mock
   private RoomRepository roomRepository;
+
+  @Mock
+  private ParticipantRepository participantRepository;
 
   @Mock
   private EntityManager entityManager;
@@ -173,7 +178,6 @@ class RoomServiceTest {
     //given
     Room room = getRoom();
     given(roomRepository.findByIdAndStatus(anyLong(), any()))
-        .willReturn(Optional.of(getRoom()));
         .willReturn(Optional.of(room));
 
     ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
@@ -216,6 +220,20 @@ class RoomServiceTest {
 
     //then
     assertEquals(ErrorCode.USER_ROOM_HOST_UN_MATCH, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("성공 참가자 확인")
+  void successIsRoomParticipant() {
+    //given
+    given(participantRepository.existsByRoomIdAndUserId(anyLong(), any()))
+        .willReturn(true);
+
+    //when
+    boolean isParticipant = roomService.isRoomParticipant(1L, 1L);
+
+    //then
+    assertTrue(isParticipant);
   }
 
   @Test

@@ -134,6 +134,29 @@ class RoomControllerTest {
   }
 
   @Test
+  @DisplayName("성공 참가자 확인")
+  void successIsRoomParticipant() throws Exception {
+    //given
+    given(roomService.isRoomParticipant(anyLong(), anyLong()))
+        .willReturn(true);
+
+    //when
+    //then
+    mockMvc.perform(get("/rooms/{roomId}/participants/{participantUserId}", 1L, 1L))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(true))
+        .andDo(
+            document(
+                "{class-name}/{method-name}",
+                preprocessRequest(prettyPrint()),
+                preprocessResponse(prettyPrint())
+            )
+        );
+
+  }
+
+  @Test
   @DisplayName("성공 게임 방 목록 조회")
   void
   successSearchRooms() throws Exception {
