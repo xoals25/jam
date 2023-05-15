@@ -1,13 +1,17 @@
 package com.tang.game.participant.domain;
 
+import static com.tang.game.participant.type.ParticipantStatus.WAIT;
+
 import com.tang.core.domain.BaseEntity;
 import com.tang.game.participant.type.ParticipantStatus;
+import com.tang.game.room.domain.Room;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,7 +32,8 @@ public class Participant extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  private Long roomId;
+  @ManyToOne
+  private Room room;
 
   private Long userId;
 
