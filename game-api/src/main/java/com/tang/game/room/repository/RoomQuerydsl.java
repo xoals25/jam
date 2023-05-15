@@ -54,7 +54,7 @@ public class RoomQuerydsl {
             containsTitle(keyword),
             eqGameType(gameType),
             eqTeamType(teamType),
-            eqStatus()
+            eqStatus(VALID)
         )
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
@@ -64,7 +64,7 @@ public class RoomQuerydsl {
 
   private Optional<RoomDto> searchRoom(Long roomId) {
     return Optional.ofNullable(searchRoomQuery()
-        .where(room.id.eq(roomId), eqStatus())
+        .where(room.id.eq(roomId), eqStatus(VALID))
         .fetchOne());
   }
 
@@ -91,13 +91,13 @@ public class RoomQuerydsl {
             containsTitle(keyword),
             eqGameType(gameType),
             eqTeamType(teamType),
-            eqStatus()
+            eqStatus(VALID)
         )
         .fetchOne();
   }
 
-  private BooleanExpression eqStatus() {
-    return room.status.eq(VALID);
+  private BooleanExpression eqStatus(RoomStatus roomStatus) {
+    return room.status.eq(roomStatus);
   }
 
   private BooleanExpression containsTitle(String keyword) {
