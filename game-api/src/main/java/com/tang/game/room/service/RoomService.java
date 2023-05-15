@@ -11,7 +11,6 @@ import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
-import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -70,9 +69,7 @@ public class RoomService {
       throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
     }
 
-    room.setStatus(RoomStatus.DELETE);
-    room.setDeletedAt(LocalDateTime.now());
-    roomRepository.save(room);
+    roomRepository.delete(room);
   }
 
   public boolean isRoomParticipant(Long roomId, Long userId) {
