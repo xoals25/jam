@@ -1,5 +1,6 @@
 package com.tang.chat.controller;
 
+import com.tang.chat.dto.ChatDto;
 import com.tang.chat.dto.ChatForm;
 import com.tang.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,6 @@ public class ChatController {
 
   @MessageMapping("/message")
   public void message(ChatForm.Request request) {
-    chatService.sendMessage(request);
+    chatService.sendMessage(ChatDto.from(request));
   }
 }
