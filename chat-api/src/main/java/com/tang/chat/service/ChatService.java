@@ -1,9 +1,9 @@
 package com.tang.chat.service;
 
+import com.tang.chat.client.GameClient;
 import com.tang.chat.common.exception.JamChatException;
 import com.tang.chat.common.type.ErrorCode;
-import com.tang.chat.dto.ChatForm;
-import com.tang.core.repository.ParticipantRepository;
+import com.tang.chat.dto.ChatDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -14,17 +14,19 @@ public class ChatService {
 
   private final SimpMessagingTemplate simpMessagingTemplate;
 
-  private final ParticipantRepository participantRepository;
+  private final GameClient gameClient;
 
-  public void sendMessage(ChatForm.Request request) {
-    if (!participantRepository.existsByRoomIdAndUserId(
-        request.getRoomId(), request.getSenderId())) {
+  public void sendMessage(ChatDto chatDto) {
+    if (Boolean.FALSE.equals(gameClient.isRoomParticipant(
+            chatDto.getRoomId(),
+            chatDto.getSenderId())
+        .getBody())) {
       throw new JamChatException(ErrorCode.NOT_FOUND_ROOM_PARTICIPANT);
     }
 
     simpMessagingTemplate.convertAndSend(
-        "/rooms/" + request.getRoomId(),
-        request
+        "/rooms/" + chatDto.getRoomId(),
+        chatDto
     );
   }
 }

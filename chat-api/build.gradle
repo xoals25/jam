@@ -22,6 +22,7 @@ repositories {
 }
 
 ext {
+    set('springCloudVersion', "2021.0.1")
     set('snippetsDir', file("build/generated-snippets"))
 }
 
@@ -48,8 +49,13 @@ dependencies {
 
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+}
 
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 tasks.named('test') {

@@ -1,17 +1,16 @@
 package com.tang.game.room.service;
 
-import static com.tang.game.common.type.RoomStatus.DELETE;
-
 import com.tang.game.common.exception.JamGameException;
+import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.RoomStatus;
 import com.tang.game.common.type.TeamType;
+import com.tang.game.participant.repository.ParticipantRepository;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
-import com.tang.game.common.type.ErrorCode;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +23,8 @@ import org.springframework.stereotype.Service;
 public class RoomService {
 
   private final RoomRepository roomRepository;
+
+  private final ParticipantRepository participantRepository;
 
   private final RoomQuerydsl roomQuerydsl;
 
@@ -63,7 +64,7 @@ public class RoomService {
 
   public void deleteRoom(Long userId, Long roomId) {
     Room room = roomRepository.findByIdAndStatus(roomId, RoomStatus.VALID)
-            .orElseThrow(() -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
+        .orElseThrow(() -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
 
     if (!Objects.equals(room.getHostUserId(), userId)) {
       throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
@@ -72,6 +73,10 @@ public class RoomService {
     room.setStatus(RoomStatus.DELETE);
     room.setDeletedAt(LocalDateTime.now());
     roomRepository.save(room);
+  }
+
+  public boolean isRoomParticipant(Long roomId, Long userId) {
+    return participantRepository.existsByRoomIdAndUserId(roomId, userId);
   }
 
   private void validateUpdateRoom(Room room, RoomForm form, Long userId) {
