@@ -39,7 +39,7 @@ public class RoomQuerydsl {
     );
   }
 
-  public Optional<RoomDto> findByTitleAndStatus(Long roomId) {
+  public Optional<RoomDto> findByIdAndStatus(Long roomId) {
     return searchRoom(roomId);
   }
 
