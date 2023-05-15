@@ -39,7 +39,7 @@ public class RoomController {
   }
 
   @PutMapping("/{roomId}")
-  void updateRoom(
+  public void updateRoom(
       @PathVariable Long roomId,
       @RequestBody @Valid RoomForm form
   ) {
@@ -50,10 +50,18 @@ public class RoomController {
   }
 
   @DeleteMapping("/{roomId}")
-  void deleteRoom(@PathVariable Long roomId) {
+  public void deleteRoom(@PathVariable Long roomId) {
     // 유저 기능 추가 되면 삭제 예정
     Long userId = 1L;
 
     roomService.deleteRoom(userId, roomId);
+  }
+
+  @GetMapping("/{roomId}/participants/{participantUserId}")
+  public ResponseEntity<Boolean> isRoomParticipant(
+      @PathVariable Long roomId,
+      @PathVariable Long participantUserId
+  ) {
+    return ResponseEntity.ok(roomService.isRoomParticipant(roomId, participantUserId));
   }
 }

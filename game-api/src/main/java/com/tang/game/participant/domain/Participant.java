@@ -1,6 +1,7 @@
-package com.tang.core.domain;
+package com.tang.game.participant.domain;
 
-import com.tang.core.type.ParticipantStatus;
+import com.tang.core.domain.BaseEntity;
+import com.tang.game.participant.type.ParticipantStatus;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -11,12 +12,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.envers.AuditOverride;
 
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@AuditOverride(forClass = BaseEntity.class)
 public class Participant extends BaseEntity {
 
   @Id

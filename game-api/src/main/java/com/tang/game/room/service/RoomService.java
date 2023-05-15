@@ -1,13 +1,12 @@
 package com.tang.game.room.service;
 
-import static com.tang.game.common.type.RoomStatus.DELETE;
-
 import com.tang.game.common.exception.JamGameException;
+import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.RoomStatus;
+import com.tang.game.participant.repository.ParticipantRepository;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomRepository;
-import com.tang.game.common.type.ErrorCode;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +17,8 @@ import org.springframework.stereotype.Service;
 public class RoomService {
 
   private final RoomRepository roomRepository;
+
+  private final ParticipantRepository participantRepository;
 
   public void createRoom(RoomForm form) {
     if (roomRepository.existsByTitleAndStatus(form.getTitle(), RoomStatus.VALID)) {
@@ -49,7 +50,7 @@ public class RoomService {
 
   public void deleteRoom(Long userId, Long roomId) {
     Room room = roomRepository.findByIdAndStatus(roomId, RoomStatus.VALID)
-            .orElseThrow(() -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
+        .orElseThrow(() -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
 
     if (!Objects.equals(room.getHostUserId(), userId)) {
       throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
@@ -60,12 +61,17 @@ public class RoomService {
     roomRepository.save(room);
   }
 
+  public boolean isRoomParticipant(Long roomId, Long userId) {
+    return participantRepository.existsByRoomIdAndUserId(roomId, userId);
+  }
+
   private void validateUpdateRoom(Room room, RoomForm form, Long userId) {
     if (!Objects.equals(room.getHostUserId(), userId)) {
       throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
     }
 
-    if (roomRepository.existsByTitleAndStatusAndIdNot(form.getTitle(), RoomStatus.VALID, room.getId())) {
+    if (roomRepository.existsByTitleAndStatusAndIdNot(form.getTitle(), RoomStatus.VALID,
+        room.getId())) {
       throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
     }
   }
