@@ -1,6 +1,6 @@
 package com.tang.chat.config;
 
-import com.tang.chat.domain.Dictionary;
+import com.tang.core.domain.Participant;
 import com.zaxxer.hikari.HikariDataSource;
 import java.util.Objects;
 import javax.sql.DataSource;
@@ -19,36 +19,39 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-    basePackages = "com.tang.chat.repository.dictionary",
-    entityManagerFactoryRef = "chatEntityManager",
-    transactionManagerRef = "chatTransactionManager"
+    basePackages = {"com.tang.core.repository"},
+    entityManagerFactoryRef = "gameEntityManager",
+    transactionManagerRef = "gameTransactionManager"
 )
-public class DictionaryDataSourceConfig {
+public class GameDataSourceConfig {
   @Bean
-  @ConfigurationProperties("spring.datasource.dictionary")
-  public DataSourceProperties dictionaryDataSourceProperties() {
+  @ConfigurationProperties("spring.datasource.game")
+  public DataSourceProperties gameDataSourceProperties() {
     return new DataSourceProperties();
   }
 
   @Bean
-  public DataSource dictionaryDataSource() {
-    return dictionaryDataSourceProperties()
+  public DataSource gameDataSource() {
+    return gameDataSourceProperties()
         .initializeDataSourceBuilder()
         .type(HikariDataSource.class)
         .build();
   }
 
-  @Bean(name = "dictionaryEntityManager")
-  public LocalContainerEntityManagerFactoryBean dictionaryEntityManager(
+  @Bean(name = "gameEntityManager")
+  public LocalContainerEntityManagerFactoryBean gameEntityManager(
       EntityManagerFactoryBuilder builder
   ) {
-    return builder.dataSource(dictionaryDataSource()).packages(Dictionary.class)
+    return builder.dataSource(gameDataSource())
+        .packages(new Class[]{
+            Participant.class
+        })
         .build();
   }
 
-  @Bean(name = "dictionaryTransactionManager")
-  public PlatformTransactionManager dictionaryTransactionManager(
-      @Qualifier("dictionaryEntityManager")
+  @Bean(name = "gameTransactionManager")
+  public PlatformTransactionManager gameTransactionManager(
+      @Qualifier("gameEntityManager")
       LocalContainerEntityManagerFactoryBean entityManagerFactoryBean
   ) {
     return new JpaTransactionManager(Objects.requireNonNull(entityManagerFactoryBean.getObject()));
