@@ -14,11 +14,11 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.tang.core.repository.ParticipantRepository;
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.TeamType;
+import com.tang.game.participant.repository.ParticipantRepository;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
@@ -223,20 +223,6 @@ class RoomServiceTest {
   }
 
   @Test
-  @DisplayName("성공 참가자 확인")
-  void successIsRoomParticipant() {
-    //given
-    given(participantRepository.existsByRoomIdAndUserId(anyLong(), any()))
-        .willReturn(true);
-
-    //when
-    boolean isParticipant = roomService.isRoomParticipant(1L, 1L);
-
-    //then
-    assertTrue(isParticipant);
-  }
-
-  @Test
   @DisplayName("성공 방 리스트 조회")
   void successSearchRooms() {
     //given
@@ -296,6 +282,20 @@ class RoomServiceTest {
     assertEquals(roomDto.getGameType(), GAME_ORDER);
     assertEquals(roomDto.getTeamType(), PERSONAL);
     assertEquals(roomDto.getLimitedNumberPeople(), 4);
+  }
+
+  @Test
+  @DisplayName("성공 참가자 확인")
+  void successIsRoomParticipant() {
+    //given
+    given(participantRepository.existsByRoomIdAndUserId(anyLong(), any()))
+        .willReturn(true);
+
+    //when
+    boolean isParticipant = roomService.isRoomParticipant(1L, 1L);
+
+    //then
+    assertTrue(isParticipant);
   }
 
   private Room getRoom() {

@@ -1,11 +1,11 @@
 package com.tang.game.room.service;
 
-import com.tang.core.repository.ParticipantRepository;
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.RoomStatus;
 import com.tang.game.common.type.TeamType;
+import com.tang.game.participant.repository.ParticipantRepository;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
