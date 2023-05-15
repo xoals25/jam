@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import org.hibernate.envers.AuditOverride;
 @Getter
 @Setter
 @Entity
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @AuditOverride(forClass = BaseEntity.class)
@@ -34,4 +36,13 @@ public class Participant extends BaseEntity {
   private ParticipantStatus status;
 
   private int gameOrder;
+
+  public static Participant from(Room room) {
+    return Participant.builder()
+        .room(room)
+        .userId(room.getHostUserId())
+        .status(WAIT)
+        .gameOrder(1)
+        .build();
+  }
 }

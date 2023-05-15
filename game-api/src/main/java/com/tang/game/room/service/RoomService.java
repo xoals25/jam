@@ -5,6 +5,7 @@ import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.RoomStatus;
 import com.tang.game.common.type.TeamType;
+import com.tang.game.participant.domain.Participant;
 import com.tang.game.participant.repository.ParticipantRepository;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.dto.RoomDto;
@@ -32,7 +33,9 @@ public class RoomService {
       throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
     }
 
-    roomRepository.save(Room.from(form));
+    Room room = roomRepository.save(Room.from(form));
+
+    participantRepository.save(Participant.from(room));
   }
 
   public Page<RoomDto> searchRooms(
