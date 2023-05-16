@@ -11,9 +11,11 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
@@ -51,7 +53,8 @@ public class Room extends BaseEntity {
   @OneToMany(mappedBy = "room", orphanRemoval = true)
   private List<Participant> participants;
 
-  @OneToOne(mappedBy = "room", orphanRemoval = true)
+  @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
+  @JoinColumn(name = "room_game_status_id", referencedColumnName = "id")
   private RoomGameStatus roomGameStatus;
 
   @Enumerated(EnumType.STRING)
