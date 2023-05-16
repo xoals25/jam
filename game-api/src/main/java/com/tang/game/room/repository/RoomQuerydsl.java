@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.tang.game.common.type.GameType;
+import com.tang.game.common.type.RoomStatus;
 import com.tang.game.common.type.TeamType;
 import com.tang.game.room.dto.QRoomDto;
 import com.tang.game.room.dto.RoomDto;
