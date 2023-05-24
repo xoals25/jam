@@ -31,12 +31,12 @@ public class Oauth2KakaoController {
   }
 
   @GetMapping("/logout")
-  public void logoutKakao(@AuthenticationPrincipal User user) {
+  public void logout(@AuthenticationPrincipal User user) {
     oauth2KakaoService.logout(user.getId());
   }
 
   @GetMapping("/unlink")
-  public void logoutKakao2(@AuthenticationPrincipal User user) {
+  public void unlink(@AuthenticationPrincipal User user) {
     oauth2KakaoService.unlink(user.getId());
   }
 }
