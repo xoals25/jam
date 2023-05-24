@@ -9,12 +9,23 @@ public enum ErrorCode {
   // common
   INTERNAL_SERVER_ERROR("내부 서버 오류가 발생 했습니다."),
   INVALID_REQUEST("잘못된 요청입니다."),
-  USER_NOT_FOUND("사용자가 없습니다."),
+  USER_NOT_FOUND("존재하지 않는 사용자입니다."),
 
   // Room
   USER_ROOM_HOST_UN_MATCH("게임방 주인이 아닙니다."),
   NOT_FOUND_ROOM("존재하지 않는 방입니다."),
-  EXIST_ROOM_TITLE("중복된 방 제목입니다.");
+  EXIST_ROOM_TITLE("중복된 방 제목입니다."),
+
+  // jwt
+  NOT_FOUND_TOKEN_MATCHING_USER("해당 유저에 매칭되는 토큰을 찾을 수 없습니다."),
+  EXPIRE_REFRESH_TOKEN("기간이 만료된 토큰입니다."),
+  NOT_FOUND_REFRESH_TOKEN("존재하지 않는 토큰입니다."),
+
+  // oauth
+  OAUTH_SING_UP_REQUIRE_EMAIL("이메일 동의가 반드시 필요합니다."),
+  DELETE_YET_REMAIN_7DAYS("탈퇴 한지 7일을 넘지 않았습니다. (탈퇴 철회 필요)"),
+
+  ;
 
   private final String description;
 }
