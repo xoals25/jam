@@ -5,18 +5,21 @@ import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.RoomStatus;
 import com.tang.game.common.type.TeamType;
+import com.tang.game.participant.domain.Participant;
 import com.tang.game.participant.repository.ParticipantRepository;
 import com.tang.game.room.domain.Room;
+import com.tang.game.room.domain.RoomGameStatus;
 import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
+import com.tang.game.room.repository.RoomGameStatusRepository;
 import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
-import java.time.LocalDateTime;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,14 +29,21 @@ public class RoomService {
 
   private final ParticipantRepository participantRepository;
 
+  private final RoomGameStatusRepository roomGameStatusRepository;
+
   private final RoomQuerydsl roomQuerydsl;
 
+  @Transactional
   public void createRoom(RoomForm form) {
     if (roomRepository.existsByTitleAndStatus(form.getTitle(), RoomStatus.VALID)) {
       throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
     }
 
-    roomRepository.save(Room.from(form));
+    Room room = roomRepository.save(Room.from(form));
+
+    roomGameStatusRepository.save(RoomGameStatus.from(room));
+
+    participantRepository.save(Participant.from(room));
   }
 
   public Page<RoomDto> searchRooms(
@@ -46,7 +56,7 @@ public class RoomService {
   }
 
   public RoomDto searchRoom(Long roomId) {
-    return roomQuerydsl.findByTitleAndStatus(roomId).orElseThrow(
+    return roomQuerydsl.findByIdAndStatus(roomId).orElseThrow(
         () -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
   }
 
@@ -70,9 +80,7 @@ public class RoomService {
       throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
     }
 
-    room.setStatus(RoomStatus.DELETE);
-    room.setDeletedAt(LocalDateTime.now());
-    roomRepository.save(room);
+    roomRepository.delete(room);
   }
 
   public boolean isRoomParticipant(Long roomId, Long userId) {
