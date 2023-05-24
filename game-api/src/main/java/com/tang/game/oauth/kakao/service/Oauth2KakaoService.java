@@ -1,15 +1,19 @@
 package com.tang.game.oauth.kakao.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static com.tang.game.token.utils.Constants.TOKEN_PREFIX;
+
 import com.tang.core.type.Gender;
 import com.tang.core.type.SignupPath;
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
+import com.tang.game.oauth.kakao.dto.KakaoAccount;
+import com.tang.game.oauth.kakao.dto.KakaoOauthTokenAndScope;
+import com.tang.game.oauth.kakao.dto.KakaoOauthUserInfo;
+import com.tang.game.oauth.kakao.dto.KakaoProfile;
+import com.tang.game.token.Service.TokenProvider;
 import com.tang.game.token.domain.Token;
 import com.tang.game.token.dto.JwtTokenDto;
 import com.tang.game.token.repository.TokenRepository;
-import com.tang.game.token.Service.TokenProvider;
 import com.tang.game.user.domain.User;
 import com.tang.game.user.repository.UserRepository;
 import com.tang.game.user.type.UserStatus;
@@ -18,9 +22,6 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -55,12 +56,15 @@ public class Oauth2KakaoService {
 
   private final TokenProvider tokenProvider;
 
+  private final WebClient webClient;
+
   @Transactional
   public JwtTokenDto login(String code) {
-    JSONObject kakaoTokenAndScopeJSONData = getKakaoTokenAndScopeJSONData(code);
+    KakaoOauthTokenAndScope.Response kakaoTokenAndScope = getKakaoTokenAndScope(code);
 
     User user = parseUserForKakaoResponse(
-        getKakaoOauthInfoJSONData(kakaoTokenAndScopeJSONData)
+        getKakaoOauthInfoJSONData(kakaoTokenAndScope),
+        kakaoTokenAndScope.getAccessToken()
     );
 
     userRepository.save(user);
@@ -72,7 +76,7 @@ public class Oauth2KakaoService {
         Collections.singletonList(user.getStatus().getKey())
     );
 
-    String accessToken = kakaoTokenAndScopeJSONData.get("access_token").toString();
+    String accessToken = kakaoTokenAndScope.getAccessToken();
 
     tokenRepository.findByUserId(user.getId())
         .ifPresentOrElse(
@@ -81,73 +85,41 @@ public class Oauth2KakaoService {
               token.setJwtAccessToken(jwtTokenDto.getJwtAccessToken());
               token.setJwtRefreshToken(jwtTokenDto.getJwtRefreshToken());
             },
-            () -> tokenRepository.save(Token.of(user.getId(), jwtTokenDto, accessToken))
-        );
+            () -> tokenRepository.save(Token.of(user.getId(), jwtTokenDto, accessToken)));
 
     return jwtTokenDto;
   }
 
-  private User parseUserForKakaoResponse(JSONObject kakaoOauthInfoJSONData) {
-    String nickname = null;
-    String email = null;
-    String ageRange = null;
-    Gender gender = null;
+  private User parseUserForKakaoResponse(
+      KakaoOauthUserInfo.Response kakaoOauthUserInfo,
+      String accessToken
+  ) {
+    KakaoAccount kakaoAccount = kakaoOauthUserInfo.getKakaoAccount();
 
-    JSONParser jsonParser = new JSONParser();
-    ObjectMapper mapper = new ObjectMapper();
+    String nickname = Optional.ofNullable(kakaoAccount.getKakaoProfile())
+        .map(KakaoProfile::getNickname)
+        .orElse(null);
 
-    JSONObject kakaoResponseJson = null;
+    String ageRange = kakaoAccount.getAgeRange();
 
-    try {
-      kakaoResponseJson = (JSONObject) jsonParser.parse(
-          mapper.writer().writeValueAsString(kakaoOauthInfoJSONData.get("kakao_account"))
-      );
-    } catch (ParseException | JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
+    Gender gender = Optional.ofNullable(kakaoAccount.getGender())
+        .map(it -> Objects.equals("male", it) ? Gender.MALE : Gender.FEMALE)
+        .orElse(null);
 
-    boolean isNickNameAgreement = !(Boolean) kakaoResponseJson
-        .get("profile_nickname_needs_agreement");
+    String email = Optional.ofNullable(kakaoAccount.getEmail())
+        .orElseThrow(() -> {
+          unlink(accessToken);
+          throw new JamGameException(ErrorCode.OAUTH_SING_UP_REQUIRE_EMAIL);
+        });
 
-    boolean isEmailAgreement = !(Boolean) kakaoResponseJson
-        .get("email_needs_agreement");
+    Optional<User> user = userRepository.findByEmailAndSignupPath(email, SignupPath.KAKAO);
 
-    boolean isAgeRangeAgreement = !(Boolean) kakaoResponseJson
-        .get("age_range_needs_agreement");
-
-    boolean isGenderAgreement = !(Boolean) kakaoResponseJson
-        .get("gender_needs_agreement");
-
-    if (isNickNameAgreement) {
-      nickname = ((JSONObject) kakaoResponseJson.get("profile"))
-          .get("nickname").toString();
-    }
-
-    if (isEmailAgreement) {
-      email = kakaoResponseJson.get("email").toString();
-
-      Optional<User> user =
-          userRepository.findByEmailAndSignupPath(email, SignupPath.KAKAO);
-
-      if (user.isPresent()) {
-        if (user.get().getStatus() == UserStatus.VALID) {
-          return user.get();
-        } else if (!user.get().getDeletedAt().isBefore(LocalDateTime.now().minusDays(7))) {
-          throw new JamGameException(ErrorCode.DELETE_YET_REMAIN_7DAYS);
-        }
+    if (user.isPresent()) {
+      if (user.get().getStatus() == UserStatus.VALID) {
+        return user.get();
+      } else if (!user.get().getDeletedAt().isBefore(LocalDateTime.now().minusDays(7))) {
+        throw new JamGameException(ErrorCode.DELETE_YET_REMAIN_7DAYS);
       }
-    } else {
-      unlink(kakaoResponseJson.get("access_token").toString());
-      throw new JamGameException(ErrorCode.OAUTH_SING_UP_REQUIRE_EMAIL);
-    }
-
-    if (isAgeRangeAgreement) {
-      ageRange = kakaoResponseJson.get("age_range").toString();
-    }
-
-    if (isGenderAgreement) {
-      gender = Objects.equals("male", kakaoResponseJson.get("gender")) ?
-          Gender.MALE : Gender.FEMALE;
     }
 
     return User.builder()
@@ -160,13 +132,7 @@ public class Oauth2KakaoService {
         .build();
   }
 
-  private JSONObject getKakaoTokenAndScopeJSONData(String code) {
-    WebClient webClient = WebClient.builder()
-        .baseUrl(tokenUrl)
-        .defaultHeader(HttpHeaders.CONTENT_TYPE,
-            "application/x-www-form-urlencoded;charset=utf-8")
-        .build();
-
+  private KakaoOauthTokenAndScope.Response getKakaoTokenAndScope(String code) {
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
     params.add("grant_type", grantType);
@@ -176,44 +142,49 @@ public class Oauth2KakaoService {
 
     return webClient
         .post()
+        .uri(tokenUrl)
+        .header(HttpHeaders.CONTENT_TYPE,
+            "application/x-www-form-urlencoded;charset=utf-8")
         .bodyValue(params)
         .retrieve()
-        .bodyToMono(JSONObject.class)
+        .bodyToMono(KakaoOauthTokenAndScope.Response.class)
         .block();
   }
 
-  private JSONObject getKakaoOauthInfoJSONData(JSONObject kakaoTokenAndScopeJSONData) {
-    String accessToken = kakaoTokenAndScopeJSONData.get("access_token").toString();
-
-    System.out.println(accessToken);
-    WebClient webClient = WebClient.builder()
-        .baseUrl(userInfoUrl)
-        .defaultHeaders(headers -> {
-          headers.add(HttpHeaders.CONTENT_TYPE,
-              "application/x-www-form-urlencoded;charset=utf-8");
-          headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-        })
-        .build();
+  private KakaoOauthUserInfo.Response getKakaoOauthInfoJSONData(
+      KakaoOauthTokenAndScope.Response KakaoOauthTokenAndScope
+  ) {
+    String accessToken = KakaoOauthTokenAndScope.getAccessToken();
 
     return webClient
         .post()
+        .uri(userInfoUrl)
+        .headers(
+            httpHeaders -> {
+              httpHeaders.set(HttpHeaders.CONTENT_TYPE,
+                  "application/x-www-form-urlencoded;charset=utf-8");
+              httpHeaders.add(HttpHeaders.AUTHORIZATION,
+                  TOKEN_PREFIX + accessToken);
+            }
+        )
         .retrieve()
-        .bodyToMono(JSONObject.class)
+        .bodyToMono(KakaoOauthUserInfo.Response.class)
         .block();
   }
 
   public void logout(Long userId) {
     webClientPostWithAuthorization("https://kapi.kakao.com/v1/user/logout",
-        "Bearer " + getOauthAccessToken(userId));
+        TOKEN_PREFIX + getOauthAccessToken(userId));
   }
 
+  @Transactional
   public void unlink(Long userId) {
     unlink(getOauthAccessToken(userId));
   }
 
   private void unlink(String token) {
     webClientPostWithAuthorization("https://kapi.kakao.com/v1/user/unlink",
-        "Bearer " + token);
+        TOKEN_PREFIX + token);
   }
 
   private String getOauthAccessToken(Long userId) {
@@ -224,14 +195,16 @@ public class Oauth2KakaoService {
   }
 
   private void webClientPostWithAuthorization(String url, String authorization) {
-    WebClient.builder()
-        .baseUrl("https://kapi.kakao.com/v1/user/unlink")
-        .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-        .build()
+    webClient
         .post()
-        .header(HttpHeaders.AUTHORIZATION, authorization)
+        .uri(url)
+        .headers(httpHeaders -> {
+          httpHeaders.set(HttpHeaders.CONTENT_TYPE,
+              MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+          httpHeaders.add(HttpHeaders.AUTHORIZATION, authorization);
+        })
         .retrieve()
-        .bodyToMono(JSONObject.class)
+        .bodyToMono(void.class)
         .block();
   }
 }
