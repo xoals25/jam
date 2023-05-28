@@ -19,9 +19,7 @@ import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.TeamType;
-import com.tang.game.participant.domain.Participant;
 import com.tang.game.participant.repository.ParticipantRepository;
-import com.tang.game.participant.type.ParticipantStatus;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.domain.RoomGameStatus;
 import com.tang.game.room.dto.RoomDto;
@@ -30,6 +28,8 @@ import com.tang.game.room.repository.RoomGameStatusRepository;
 import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
 import com.tang.game.room.type.GameStatus;
+import com.tang.game.user.domain.User;
+import com.tang.game.user.type.UserStatus;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +56,9 @@ class RoomServiceTest {
   private RoomGameStatusRepository roomGameStatusRepository;
 
   @Mock
+  private RoomParticipantCountService roomParticipantCountService;
+
+  @Mock
   private ParticipantRepository participantRepository;
 
   @InjectMocks
@@ -68,34 +71,31 @@ class RoomServiceTest {
   @Test
   @DisplayName("성공 - 방 생성")
   void successCreateRoom() {
-    //given
+    // given
     given(roomRepository.existsByTitleAndStatus(anyString(), any()))
         .willReturn(false);
 
-    given(roomRepository.save(any(Room.class)))
+    given(roomRepository.save(any()))
         .willReturn(getRoom());
 
+//    given(roomParticipantCountService.saveRoomParticipantWithRoomHost(any(), any()))
+//        .willReturn(void.class);
+
     ArgumentCaptor<Room> roomCaptor = ArgumentCaptor.forClass(Room.class);
-    ArgumentCaptor<Participant> participantCaptor = ArgumentCaptor.forClass(Participant.class);
     ArgumentCaptor<RoomGameStatus> roomGameStatusCaptor = ArgumentCaptor.forClass(RoomGameStatus.class);
 
+
     //when
-    roomService.createRoom(getRoomForm());
+    Long roomId = roomService.createRoom(getUser(), getRoomForm());
 
     //then
     verify(roomRepository, times(1)).save(roomCaptor.capture());
-    assertEquals(roomCaptor.getValue().getHostUserId(), 1L);
+    assertEquals(roomCaptor.getValue().getHostUserId(), roomId);
     assertEquals(roomCaptor.getValue().getTitle(), "게임방 제목");
     assertEquals(roomCaptor.getValue().getPassword(), "0123");
     assertEquals(roomCaptor.getValue().getLimitedNumberPeople(), 8);
     assertEquals(roomCaptor.getValue().getTeamType(), PERSONAL);
     assertEquals(roomCaptor.getValue().getGameType(), GAME_ORDER);
-
-    verify(participantRepository, times(1)).save(participantCaptor.capture());
-    assertEquals(participantCaptor.getValue().getGameOrder(), 1);
-    assertEquals(participantCaptor.getValue().getStatus(), ParticipantStatus.WAIT);
-    assertEquals(participantCaptor.getValue().getUserId(), roomCaptor.getValue().getHostUserId());
-    assertEquals(participantCaptor.getValue().getRoom().getId(), 1L);
 
     verify(roomGameStatusRepository, times(1)).save(roomGameStatusCaptor.capture());
     assertEquals(roomGameStatusCaptor.getValue().getRoom().getId(), 1L);
@@ -106,13 +106,13 @@ class RoomServiceTest {
   @Test
   @DisplayName("실패 - 방 생성(중복되는 방제목)")
   void failCreateRoom_ExistRoomTitle() {
-    //given
+    // given
     given(roomRepository.existsByTitleAndStatus(anyString(), any()))
         .willReturn(true);
 
     //when
     JamGameException exception = assertThrows(JamGameException.class,
-        () -> roomService.createRoom(getRoomForm()));
+        () -> roomService.createRoom(getUser(),getRoomForm()));
 
     //then
     assertEquals(ErrorCode.EXIST_ROOM_TITLE, exception.getErrorCode());
@@ -321,6 +321,15 @@ class RoomServiceTest {
 
     //then
     assertTrue(isParticipant);
+  }
+
+  private User getUser() {
+    return User.builder()
+        .id(1L)
+        .password("123")
+        .email("xoals25@naver.com")
+        .status(UserStatus.VALID)
+        .build();
   }
 
   private Room getRoom() {
