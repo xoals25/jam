@@ -14,6 +14,7 @@ public enum ErrorCode {
   // User
   EMAIL_OR_PASSWORD_UN_MATCH("아이디 혹은 비밀번호를 다시 확인해주세요"),
   PASSWORD_UN_MATCH("비밀번호가 일치하지 않습니다."),
+  ALREADY_EXIST_EMAIL("이미 존재하는 이메일입니다."),
 
   // Room
   USER_ROOM_HOST_UN_MATCH("게임방 주인이 아닙니다."),

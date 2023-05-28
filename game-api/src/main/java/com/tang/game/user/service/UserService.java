@@ -14,6 +14,7 @@ import com.tang.game.user.dto.SigninForm;
 import com.tang.game.user.dto.SignupForm;
 import com.tang.game.user.dto.UserDto;
 import com.tang.game.user.repository.UserRepository;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,6 +34,11 @@ public class UserService {
   private final PasswordEncoder bCryptPasswordEncoder;
 
   public void signup(SignupForm form) {
+    if (userRepository.existsByEmailAndDeletedAtNullOrDeletedAtBefore(
+        form.getEmail(), LocalDateTime.now().minusDays(7))) {
+      throw new JamGameException(ErrorCode.ALREADY_EXIST_EMAIL);
+    }
+
     userRepository.save(User.of(form, bCryptPasswordEncoder));
   }
 
