@@ -56,14 +56,12 @@ public class RoomController {
   }
 
   @PutMapping("/{roomId}")
-  public void updateRoom(
+  public ResponseEntity<Long> updateRoom(
+      @AuthenticationPrincipal User user,
       @PathVariable Long roomId,
       @RequestBody @Valid RoomForm form
   ) {
-    // 임시로 작성
-    Long userId = 1L;
-
-    roomService.updateRoom(userId, roomId, form);
+    return ResponseEntity.ok(roomService.updateRoom(user, roomId, form));
   }
 
   @DeleteMapping("/{roomId}")

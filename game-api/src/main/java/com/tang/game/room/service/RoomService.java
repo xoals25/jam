@@ -63,9 +63,7 @@ public class RoomService {
 
     return roomQuerydsl.findAllByTitleAndStatus(keyword, gameType, teamType, pageable)
         .map(it -> {
-          it.setCurrentNumberPeople(roomParticipantCountService
-              .getRoomParticipantCount(it.getId())
-              .getCurrentNumberPeople());
+          it.setCurrentNumberPeople(getRoomCurrentParticipantCount(it.getId()));
 
           return it;
         });
@@ -75,25 +73,27 @@ public class RoomService {
     RoomDto roomDto = roomQuerydsl.findByIdAndStatus(roomId)
         .orElseThrow(() -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
 
-    roomDto.setCurrentNumberPeople(
-        roomParticipantCountService
-            .getRoomParticipantCount(roomId)
-            .getCurrentNumberPeople()
-    );
+    roomDto.setCurrentNumberPeople(getRoomCurrentParticipantCount(roomId));
 
     return roomDto;
   }
 
-  public void updateRoom(Long userId, Long roomId, RoomForm form) {
+  public Long updateRoom(User user, Long roomId, RoomForm form) {
     Room room = roomRepository.findById(roomId).orElseThrow(
         () -> new JamGameException(ErrorCode.NOT_FOUND_ROOM)
     );
 
-    validateUpdateRoom(room, form, userId);
+    if (form.getLimitedNumberPeople() < getRoomCurrentParticipantCount(roomId)) {
+      throw new JamGameException(ErrorCode.LIMIT_PARTICIPANT_COUNT_NOT_MIN_CURRENT_PARTICIPANT_COUNT);
+    }
+
+    validateUpdateRoom(room, form, user.getId());
 
     room.update(form);
 
     roomRepository.save(room);
+
+    return room.getId();
   }
 
   public void deleteRoom(Long userId, Long roomId) {
@@ -120,5 +120,11 @@ public class RoomService {
         room.getId())) {
       throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
     }
+  }
+
+  private int getRoomCurrentParticipantCount(Long roomId) {
+    return roomParticipantCountService
+        .getRoomParticipantCount(roomId)
+        .getCurrentNumberPeople();
   }
 }
