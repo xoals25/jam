@@ -32,7 +32,7 @@ public class RoomGameStatus extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne(mappedBy = "roomGameStatus")
+  @OneToOne(mappedBy = "roomGameStatus", orphanRemoval = true)
   private Room room;
 
   private int gameTalkOrder;

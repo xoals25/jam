@@ -1,5 +1,6 @@
 package com.tang.game.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -15,5 +16,10 @@ public class ApplicationConfig {
         .defaultHeader(HttpHeaders.CONTENT_TYPE,
             MediaType.APPLICATION_JSON_VALUE)
         .build();
+  }
+
+  @Bean
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper();
   }
 }
