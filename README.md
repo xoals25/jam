@@ -67,16 +67,16 @@ https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
 ### 🚪 게임 방
 #### 방 생성
 - [ ] 여러가지 조건에 맞춰 방 만들기
-    - [ ] 인원수 설정
+    - [x] 인원수 설정
     - [ ] 비밀번호
 
 #### 방 입장
 - [ ] 방 검색 및 필터 기능
     - [ ] 검색 - elastic search 사용
-    - [ ] 방 조회 및 필터querydsl 사용
+    - [x] 방 조회 및 필터querydsl 사용
     
 #### 방 삭제
-- [ ] 방 삭제 (상태 변경)
+- [x] 방 삭제 (상태 변경)
 
 --- 
 
@@ -89,8 +89,9 @@ https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
 ---
  
 ### 👥 유저
-- [ ] 카카오 소셜 로그인 or 네이버 소셜 로그인
-- [ ] JWT, Spring Security
+- [x] 카카오 소셜 로그인 or 네이버 소셜 로그인
+- [x] JWT, Spring Security
+- [x] 앱 자체 회원가입, 로그아웃, 회원탈퇴 
 
 # 그 외 우선 순위 낮은 기능들
 ### 👥 유저
@@ -109,6 +110,12 @@ https://www.erdcloud.com/d/tBybEs5hsPZTwpuGe
 - [ ] 초대하기
 - [ ] 개인전, 팀전
 - [ ] 해당 방 블랙리스트 입장 불가(redis 사용)
+
+
+### 기능 외 성능관련
+- [ ] db 인덱싱 적용
+- [ ] 검색 기능 elactic search 적용
+- [ ] redi
 
 # 필요한 기술 스택
 - Spring-boot(Java)
