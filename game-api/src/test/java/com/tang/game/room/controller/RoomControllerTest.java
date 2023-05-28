@@ -172,8 +172,7 @@ class RoomControllerTest {
   @Test
   @DisplayName("성공 게임 방 목록 조회")
   @WithMockUser
-  void
-  successSearchRooms() throws Exception {
+  void successSearchRooms() throws Exception {
     //given
     List<RoomDto> roomDtos = new ArrayList<>();
 
@@ -185,6 +184,7 @@ class RoomControllerTest {
           .gameType(GAME_ORDER)
           .teamType(PERSONAL)
           .limitedNumberPeople(4)
+          .currentNumberPeople(2)
           .password("123")
           .build());
     }
@@ -233,6 +233,8 @@ class RoomControllerTest {
                         .description("게임 팀 타입"),
                     fieldWithPath("content[].limitedNumberPeople").type(JsonFieldType.NUMBER)
                         .description("게임 방 인원 제한"),
+                    fieldWithPath("content[].currentNumberPeople").type(JsonFieldType.NUMBER)
+                        .description("게임 방 참가자 수"),
                     fieldWithPath("content[].password").type(JsonFieldType.STRING)
                         .description("게임 방 암호"),
                     fieldWithPath("first").type(JsonFieldType.BOOLEAN)
@@ -259,8 +261,8 @@ class RoomControllerTest {
 
   @Test
   @DisplayName("성공 게임 상세 조회")
-  void
-  successSearchRoom() throws Exception {
+  @WithMockUser
+  void successSearchRoom() throws Exception {
     //given
     given(roomService.searchRoom(anyLong()))
         .willReturn(RoomDto.builder()
@@ -270,6 +272,7 @@ class RoomControllerTest {
             .gameType(GAME_ORDER)
             .teamType(PERSONAL)
             .limitedNumberPeople(4)
+            .currentNumberPeople(2)
             .password("123")
             .build());
 
@@ -302,6 +305,8 @@ class RoomControllerTest {
                     fieldWithPath("teamType").type(JsonFieldType.STRING)
                         .description("게임 팀 타입"),
                     fieldWithPath("limitedNumberPeople").type(JsonFieldType.NUMBER)
+                        .description("게임 방 인원 제한"),
+                    fieldWithPath("currentNumberPeople").type(JsonFieldType.NUMBER)
                         .description("게임 방 인원 제한"),
                     fieldWithPath("password").type(JsonFieldType.STRING)
                         .description("게임 방 암호")
