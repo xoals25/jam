@@ -24,6 +24,7 @@ import com.tang.game.room.domain.Room;
 import com.tang.game.room.domain.RoomGameStatus;
 import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
+import com.tang.game.room.dto.RoomParticipantCount;
 import com.tang.game.room.repository.RoomGameStatusRepository;
 import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
@@ -45,6 +46,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.test.context.support.WithMockUser;
 
 @ExtendWith(MockitoExtension.class)
 class RoomServiceTest {
@@ -249,6 +251,7 @@ class RoomServiceTest {
 
   @Test
   @DisplayName("성공 방 리스트 조회")
+  @WithMockUser
   void successSearchRooms() {
     //given
     List<RoomDto> roomDtos = new ArrayList<>();
@@ -272,6 +275,9 @@ class RoomServiceTest {
         any(Pageable.class)
     )).willReturn(new PageImpl<>(roomDtos, PageRequest.of(0, 5), 3));
 
+    given(roomParticipantCountService.getRoomParticipantCount(anyLong()))
+        .willReturn(getRoomParticipantCount());
+
     //when
     Page<RoomDto> response = roomService.searchRooms(
         "게임",
@@ -288,14 +294,19 @@ class RoomServiceTest {
     assertEquals(response.getContent().get(0).getGameType(), GAME_ORDER);
     assertEquals(response.getContent().get(0).getTeamType(), PERSONAL);
     assertEquals(response.getContent().get(0).getLimitedNumberPeople(), 4);
+    assertEquals(response.getContent().get(0).getCurrentNumberPeople(), 1);
   }
 
   @Test
   @DisplayName("성공 방 상세 조회")
+  @WithMockUser
   void successSearchRoom() {
     //given
     given(roomQuerydsl.findByIdAndStatus(anyLong()))
         .willReturn(Optional.ofNullable(getRoomDto()));
+
+    given(roomParticipantCountService.getRoomParticipantCount(anyLong()))
+        .willReturn(getRoomParticipantCount());
 
     //when
     RoomDto roomDto = roomService.searchRoom(1L);
@@ -307,6 +318,7 @@ class RoomServiceTest {
     assertEquals(roomDto.getGameType(), GAME_ORDER);
     assertEquals(roomDto.getTeamType(), PERSONAL);
     assertEquals(roomDto.getLimitedNumberPeople(), 4);
+    assertEquals(roomDto.getCurrentNumberPeople(), 1);
   }
 
   @Test
@@ -358,6 +370,13 @@ class RoomServiceTest {
         .teamType(PERSONAL)
         .limitedNumberPeople(4)
         .password("123")
+        .build();
+  }
+
+  private RoomParticipantCount getRoomParticipantCount() {
+    return RoomParticipantCount.builder()
+        .limitedNumberPeople(1)
+        .currentNumberPeople(1)
         .build();
   }
 }
