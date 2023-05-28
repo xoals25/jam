@@ -60,12 +60,28 @@ public class RoomService {
       TeamType teamType,
       Pageable pageable
   ) {
-    return roomQuerydsl.findAllByTitleAndStatus(keyword, gameType, teamType, pageable);
+
+    return roomQuerydsl.findAllByTitleAndStatus(keyword, gameType, teamType, pageable)
+        .map(it -> {
+          it.setCurrentNumberPeople(roomParticipantCountService
+              .getRoomParticipantCount(it.getId())
+              .getCurrentNumberPeople());
+
+          return it;
+        });
   }
 
   public RoomDto searchRoom(Long roomId) {
-    return roomQuerydsl.findByIdAndStatus(roomId).orElseThrow(
-        () -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
+    RoomDto roomDto = roomQuerydsl.findByIdAndStatus(roomId)
+        .orElseThrow(() -> new JamGameException(ErrorCode.NOT_FOUND_ROOM));
+
+    roomDto.setCurrentNumberPeople(
+        roomParticipantCountService
+            .getRoomParticipantCount(roomId)
+            .getCurrentNumberPeople()
+    );
+
+    return roomDto;
   }
 
   public void updateRoom(Long userId, Long roomId, RoomForm form) {

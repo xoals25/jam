@@ -3,6 +3,7 @@ package com.tang.game.room.dto;
 import com.querydsl.core.annotations.QueryProjection;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.TeamType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class RoomDto {
   private Long id;
 
@@ -26,6 +28,8 @@ public class RoomDto {
   private GameType gameType;
 
   private TeamType teamType;
+
+  private int currentNumberPeople;
 
   @QueryProjection
   public RoomDto(Long id, Long hostUserId, String title, String password, int limitedNumberPeople,
