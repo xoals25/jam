@@ -122,6 +122,7 @@ class RoomServiceTest {
 
   @Test
   @DisplayName("성공 - 방 수정")
+  @WithMockUser
   void successUpdateRoom() {
     //given
     given(roomRepository.findById(anyLong()))
@@ -130,13 +131,16 @@ class RoomServiceTest {
     given(roomRepository.existsByTitleAndStatusAndIdNot(anyString(), any(), anyLong()))
         .willReturn(false);
 
+    given(roomParticipantCountService.getRoomParticipantCount(anyLong()))
+        .willReturn(getRoomParticipantCount());
+
     ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
 
     //when
     RoomForm roomForm = getRoomForm();
     roomForm.setTitle("게임방 제목 변경");
 
-    roomService.updateRoom(1L, 1L, roomForm);
+    Long updateRoomId = roomService.updateRoom(getUser(), 1L, roomForm);
 
     //then
     verify(roomRepository, times(1)).save(captor.capture());
@@ -146,10 +150,12 @@ class RoomServiceTest {
     assertEquals(captor.getValue().getLimitedNumberPeople(), 8);
     assertEquals(captor.getValue().getTeamType(), PERSONAL);
     assertEquals(captor.getValue().getGameType(), GAME_ORDER);
+    assertEquals(captor.getValue().getId(), updateRoomId);
   }
 
   @Test
   @DisplayName("실패 방 수정 - 존재하지 않는 방")
+  @WithMockUser
   void failUpdateRoom_NotFoundRoom() {
     //given
     given(roomRepository.findById(anyLong()))
@@ -157,7 +163,7 @@ class RoomServiceTest {
 
     //when
     JamGameException exception = assertThrows(JamGameException.class,
-        () -> roomService.updateRoom(1L, 1L, getRoomForm()));
+        () -> roomService.updateRoom(getUser(), 1L, getRoomForm()));
 
     //then
     assertEquals(ErrorCode.NOT_FOUND_ROOM, exception.getErrorCode());
@@ -165,6 +171,7 @@ class RoomServiceTest {
 
   @Test
   @DisplayName("실패 방 수정 - 게임방 주인이 아님")
+  @WithMockUser
   void failUpdateRoom_HostUnMatch() {
     //given
     given(roomRepository.findById(anyLong()))
@@ -172,7 +179,7 @@ class RoomServiceTest {
 
     //when
     JamGameException exception = assertThrows(JamGameException.class,
-        () -> roomService.updateRoom(2L, 1L, getRoomForm()));
+        () -> roomService.updateRoom(getUser(), 1L, getRoomForm()));
 
     //then
     assertEquals(ErrorCode.USER_ROOM_HOST_UN_MATCH, exception.getErrorCode());
@@ -180,6 +187,7 @@ class RoomServiceTest {
 
   @Test
   @DisplayName("실패 방 수정 - 중복 되는 방제목")
+  @WithMockUser
   void failUpdateRoom_ExistRoomTitle() {
     //given
     given(roomRepository.existsByTitleAndStatusAndIdNot(anyString(), any(), anyLong()))
@@ -190,10 +198,36 @@ class RoomServiceTest {
 
     //when
     JamGameException exception = assertThrows(JamGameException.class,
-        () -> roomService.updateRoom(1L, 1L, getRoomForm()));
+        () -> roomService.updateRoom(getUser(), 1L, getRoomForm()));
 
     //then
     assertEquals(ErrorCode.EXIST_ROOM_TITLE, exception.getErrorCode());
+  }
+
+  @Test
+  @DisplayName("실패 방 수정 - 참여 인원보다 적은 제한인원 수정")
+  @WithMockUser
+  void failUpdateRoom_LIMIT_PARTICIPANT_COUNT_ERROR() {
+    //given
+    given(roomRepository.existsByTitleAndStatusAndIdNot(anyString(), any(), anyLong()))
+        .willReturn(false);
+
+    given(roomRepository.findById(anyLong()))
+        .willReturn(Optional.of(getRoom()));
+
+    given(roomParticipantCountService.getRoomParticipantCount(anyLong()))
+        .willReturn(getRoomParticipantCount());
+
+
+    RoomForm roomForm = getRoomForm();
+    roomForm.setLimitedNumberPeople(2);
+
+    //when
+    JamGameException exception = assertThrows(JamGameException.class,
+        () -> roomService.updateRoom(getUser(), 1L, roomForm));
+
+    //then
+    assertEquals(ErrorCode.LIMIT_PARTICIPANT_COUNT_NOT_MIN_CURRENT_PARTICIPANT_COUNT, exception.getErrorCode());
   }
 
   @Test
@@ -294,7 +328,7 @@ class RoomServiceTest {
     assertEquals(response.getContent().get(0).getGameType(), GAME_ORDER);
     assertEquals(response.getContent().get(0).getTeamType(), PERSONAL);
     assertEquals(response.getContent().get(0).getLimitedNumberPeople(), 4);
-    assertEquals(response.getContent().get(0).getCurrentNumberPeople(), 1);
+    assertEquals(response.getContent().get(0).getCurrentNumberPeople(), 3);
   }
 
   @Test
@@ -318,7 +352,7 @@ class RoomServiceTest {
     assertEquals(roomDto.getGameType(), GAME_ORDER);
     assertEquals(roomDto.getTeamType(), PERSONAL);
     assertEquals(roomDto.getLimitedNumberPeople(), 4);
-    assertEquals(roomDto.getCurrentNumberPeople(), 1);
+    assertEquals(roomDto.getCurrentNumberPeople(), 3);
   }
 
   @Test
@@ -375,8 +409,8 @@ class RoomServiceTest {
 
   private RoomParticipantCount getRoomParticipantCount() {
     return RoomParticipantCount.builder()
-        .limitedNumberPeople(1)
-        .currentNumberPeople(1)
+        .limitedNumberPeople(3)
+        .currentNumberPeople(3)
         .build();
   }
 }

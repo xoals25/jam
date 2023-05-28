@@ -99,24 +99,21 @@ class RoomControllerTest {
   @WithMockUser
   void successUpdateRoom() throws Exception {
     //given
-    RoomForm form = RoomForm.builder()
-        .userId(1L)
-        .title("게임방 제목")
-        .password("0123")
-        .limitedNumberPeople(8)
-        .gameType(GAME_ORDER)
-        .teamType(PERSONAL)
-        .build();
+    given(roomService.updateRoom(any(), anyLong(), any()))
+        .willReturn(1L);
 
-    roomService.updateRoom(1L, 1L, form);
     //when
     //then
+    String body = objectMapper.writeValueAsString(getRoomForm());
+
     mockMvc.perform(put("/rooms/1")
             .contentType(MediaType.APPLICATION_JSON)
+            .content(body)
             .with(csrf())
         )
         .andDo(print())
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(1L))
         .andDo(
             document(
                 "{class-name}/{method-name}",
