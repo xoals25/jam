@@ -17,9 +17,13 @@ import lombok.ToString;
 public class JwtTokenDto {
 
   private String grantType;
+
   private String jwtAccessToken;
+
   private String jwtRefreshToken;
+
   private Date jwtAccessTokenExpiresTime;
+
   private Date jwtRefreshTokenExpiresTime;
 }
 
