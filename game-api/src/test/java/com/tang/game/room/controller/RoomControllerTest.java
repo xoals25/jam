@@ -70,22 +70,13 @@ class RoomControllerTest {
   void
   successCreateRoom() throws Exception {
     //given
-
-    RoomForm form = RoomForm.builder()
-        .userId(1L)
-        .title("게임방 제목")
-        .password("0123")
-        .limitedNumberPeople(8)
-        .gameType(GAME_ORDER)
-        .teamType(PERSONAL)
-        .build();
-
-    roomService.createRoom(form);
-
-    String body = objectMapper.writeValueAsString(getRoomForm());
+    given(roomService.createRoom(any(), any()))
+        .willReturn(1L);
 
     //when
     //then
+    String body = objectMapper.writeValueAsString(getRoomForm());
+
     mockMvc.perform(post("/rooms")
             .content(body)
             .contentType(MediaType.APPLICATION_JSON)
@@ -93,6 +84,7 @@ class RoomControllerTest {
         )
         .andDo(print())
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value(1L))
         .andDo(
             document(
                 "{class-name}/{method-name}",
