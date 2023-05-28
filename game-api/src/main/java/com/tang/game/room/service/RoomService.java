@@ -5,7 +5,6 @@ import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.RoomStatus;
 import com.tang.game.common.type.TeamType;
-import com.tang.game.participant.domain.Participant;
 import com.tang.game.participant.repository.ParticipantRepository;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.domain.RoomGameStatus;
@@ -14,6 +13,7 @@ import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.repository.RoomGameStatusRepository;
 import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
+import com.tang.game.user.domain.User;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +27,8 @@ public class RoomService {
 
   private final RoomRepository roomRepository;
 
+  private final RoomParticipantCountService roomParticipantCountService;
+
   private final ParticipantRepository participantRepository;
 
   private final RoomGameStatusRepository roomGameStatusRepository;
@@ -34,7 +36,11 @@ public class RoomService {
   private final RoomQuerydsl roomQuerydsl;
 
   @Transactional
-  public void createRoom(RoomForm form) {
+  public Long createRoom(User user, RoomForm form) {
+    if (!Objects.equals(user.getId(), form.getUserId())) {
+      throw new JamGameException(ErrorCode.UN_MATCH_CREATE_ROOM_USER_ID_AND_LOGIN_USER_ID);
+    }
+
     if (roomRepository.existsByTitleAndStatus(form.getTitle(), RoomStatus.VALID)) {
       throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
     }
@@ -43,7 +49,9 @@ public class RoomService {
 
     roomGameStatusRepository.save(RoomGameStatus.from(room));
 
-    participantRepository.save(Participant.from(room));
+    roomParticipantCountService.saveRoomParticipantWithRoomHost(room, form);
+
+    return room.getId();
   }
 
   public Page<RoomDto> searchRooms(
@@ -92,7 +100,8 @@ public class RoomService {
       throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
     }
 
-    if (roomRepository.existsByTitleAndStatusAndIdNot(form.getTitle(), RoomStatus.VALID, room.getId())) {
+    if (roomRepository.existsByTitleAndStatusAndIdNot(form.getTitle(), RoomStatus.VALID,
+        room.getId())) {
       throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
     }
   }

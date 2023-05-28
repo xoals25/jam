@@ -6,6 +6,7 @@ import static com.tang.game.room.util.Constants.GAME_CREATE_FIRST_ORDER;
 import com.tang.core.domain.BaseEntity;
 import com.tang.game.participant.type.ParticipantStatus;
 import com.tang.game.room.domain.Room;
+import com.tang.game.room.dto.RoomForm;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -49,6 +50,15 @@ public class Participant extends BaseEntity {
         .userId(room.getHostUserId())
         .status(WAIT)
         .gameOrder(GAME_CREATE_FIRST_ORDER)
+        .build();
+  }
+
+  public static Participant of(Room room, RoomForm form, int gameOrder) {
+    return Participant.builder()
+        .room(room)
+        .userId(form.getUserId())
+        .status(ParticipantStatus.WAIT)
+        .gameOrder(gameOrder)
         .build();
   }
 }
