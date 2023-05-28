@@ -1,18 +1,17 @@
-package com.tang.game.participant.domain;
+package com.tang.game.room.domain;
 
-import static com.tang.game.participant.type.ParticipantStatus.WAIT;
 import static com.tang.game.room.util.Constants.GAME_CREATE_FIRST_ORDER;
 
 import com.tang.core.domain.BaseEntity;
-import com.tang.game.participant.type.ParticipantStatus;
-import com.tang.game.room.domain.Room;
+import com.tang.game.room.type.GameStatus;
+import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,28 +26,27 @@ import org.hibernate.envers.AuditOverride;
 @NoArgsConstructor
 @AllArgsConstructor
 @AuditOverride(forClass = BaseEntity.class)
-public class Participant extends BaseEntity {
+public class RoomGameStatus extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne
+  @OneToOne(mappedBy = "roomGameStatus")
   private Room room;
 
-  private Long userId;
+  private int gameTalkOrder;
 
   @Enumerated(EnumType.STRING)
-  private ParticipantStatus status;
+  private GameStatus status;
 
-  private int gameOrder;
+  private LocalDateTime startedAt;
 
-  public static Participant from(Room room) {
-    return Participant.builder()
+  public static RoomGameStatus from(Room room) {
+    return RoomGameStatus.builder()
         .room(room)
-        .userId(room.getHostUserId())
-        .status(WAIT)
-        .gameOrder(GAME_CREATE_FIRST_ORDER)
+        .gameTalkOrder(GAME_CREATE_FIRST_ORDER)
+        .status(GameStatus.WAIT)
         .build();
   }
 }

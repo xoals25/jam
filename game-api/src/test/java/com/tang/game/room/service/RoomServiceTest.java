@@ -3,6 +3,7 @@ package com.tang.game.room.service;
 import static com.tang.game.common.type.GameType.GAME_ORDER;
 import static com.tang.game.common.type.RoomStatus.DELETE;
 import static com.tang.game.common.type.TeamType.PERSONAL;
+import static com.tang.game.room.util.Constants.GAME_CREATE_FIRST_ORDER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,16 +19,21 @@ import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.TeamType;
+import com.tang.game.participant.domain.Participant;
 import com.tang.game.participant.repository.ParticipantRepository;
+import com.tang.game.participant.type.ParticipantStatus;
 import com.tang.game.room.domain.Room;
+import com.tang.game.room.domain.RoomGameStatus;
 import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
+import com.tang.game.room.repository.RoomGameStatusRepository;
 import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
+import com.tang.game.room.type.GameStatus;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,10 +53,10 @@ class RoomServiceTest {
   private RoomRepository roomRepository;
 
   @Mock
-  private ParticipantRepository participantRepository;
+  private RoomGameStatusRepository roomGameStatusRepository;
 
   @Mock
-  private EntityManager entityManager;
+  private ParticipantRepository participantRepository;
 
   @InjectMocks
   private RoomService roomService;
@@ -66,19 +72,35 @@ class RoomServiceTest {
     given(roomRepository.existsByTitleAndStatus(anyString(), any()))
         .willReturn(false);
 
-    ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
+    given(roomRepository.save(any(Room.class)))
+        .willReturn(getRoom());
+
+    ArgumentCaptor<Room> roomCaptor = ArgumentCaptor.forClass(Room.class);
+    ArgumentCaptor<Participant> participantCaptor = ArgumentCaptor.forClass(Participant.class);
+    ArgumentCaptor<RoomGameStatus> roomGameStatusCaptor = ArgumentCaptor.forClass(RoomGameStatus.class);
 
     //when
     roomService.createRoom(getRoomForm());
 
     //then
-    verify(roomRepository, times(1)).save(captor.capture());
-    assertEquals(captor.getValue().getHostUserId(), 1L);
-    assertEquals(captor.getValue().getTitle(), "게임방 제목");
-    assertEquals(captor.getValue().getPassword(), "0123");
-    assertEquals(captor.getValue().getLimitedNumberPeople(), 8);
-    assertEquals(captor.getValue().getTeamType(), PERSONAL);
-    assertEquals(captor.getValue().getGameType(), GAME_ORDER);
+    verify(roomRepository, times(1)).save(roomCaptor.capture());
+    assertEquals(roomCaptor.getValue().getHostUserId(), 1L);
+    assertEquals(roomCaptor.getValue().getTitle(), "게임방 제목");
+    assertEquals(roomCaptor.getValue().getPassword(), "0123");
+    assertEquals(roomCaptor.getValue().getLimitedNumberPeople(), 8);
+    assertEquals(roomCaptor.getValue().getTeamType(), PERSONAL);
+    assertEquals(roomCaptor.getValue().getGameType(), GAME_ORDER);
+
+    verify(participantRepository, times(1)).save(participantCaptor.capture());
+    assertEquals(participantCaptor.getValue().getGameOrder(), 1);
+    assertEquals(participantCaptor.getValue().getStatus(), ParticipantStatus.WAIT);
+    assertEquals(participantCaptor.getValue().getUserId(), roomCaptor.getValue().getHostUserId());
+    assertEquals(participantCaptor.getValue().getRoom().getId(), 1L);
+
+    verify(roomGameStatusRepository, times(1)).save(roomGameStatusCaptor.capture());
+    assertEquals(roomGameStatusCaptor.getValue().getRoom().getId(), 1L);
+    assertEquals(roomGameStatusCaptor.getValue().getGameTalkOrder(), GAME_CREATE_FIRST_ORDER);
+    assertEquals(roomGameStatusCaptor.getValue().getStatus(), GameStatus.WAIT);
   }
 
   @Test
@@ -186,7 +208,10 @@ class RoomServiceTest {
     roomService.deleteRoom(1L, 1L);
 
     //then
-    verify(roomRepository, times(1)).save(captor.capture());
+    verify(roomRepository, times(1)).delete(captor.capture());
+
+    captor.getValue().setStatus(DELETE);
+    captor.getValue().setDeletedAt(LocalDateTime.now());
 
     assertEquals(captor.getValue().getStatus(), DELETE);
     assertNotNull(captor.getValue().getDeletedAt());
@@ -269,7 +294,7 @@ class RoomServiceTest {
   @DisplayName("성공 방 상세 조회")
   void successSearchRoom() {
     //given
-    given(roomQuerydsl.findByTitleAndStatus(anyLong()))
+    given(roomQuerydsl.findByIdAndStatus(anyLong()))
         .willReturn(Optional.ofNullable(getRoomDto()));
 
     //when

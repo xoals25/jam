@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.tang.game.common.type.GameType;
+import com.tang.game.common.type.RoomStatus;
 import com.tang.game.common.type.TeamType;
 import com.tang.game.room.dto.QRoomDto;
 import com.tang.game.room.dto.RoomDto;
@@ -39,7 +40,7 @@ public class RoomQuerydsl {
     );
   }
 
-  public Optional<RoomDto> findByTitleAndStatus(Long roomId) {
+  public Optional<RoomDto> findByIdAndStatus(Long roomId) {
     return searchRoom(roomId);
   }
 
@@ -54,7 +55,7 @@ public class RoomQuerydsl {
             containsTitle(keyword),
             eqGameType(gameType),
             eqTeamType(teamType),
-            eqStatus()
+            eqStatus(VALID)
         )
         .offset(pageable.getOffset())
         .limit(pageable.getPageSize())
@@ -64,7 +65,7 @@ public class RoomQuerydsl {
 
   private Optional<RoomDto> searchRoom(Long roomId) {
     return Optional.ofNullable(searchRoomQuery()
-        .where(room.id.eq(roomId), eqStatus())
+        .where(room.id.eq(roomId), eqStatus(VALID))
         .fetchOne());
   }
 
@@ -91,13 +92,13 @@ public class RoomQuerydsl {
             containsTitle(keyword),
             eqGameType(gameType),
             eqTeamType(teamType),
-            eqStatus()
+            eqStatus(VALID)
         )
         .fetchOne();
   }
 
-  private BooleanExpression eqStatus() {
-    return room.status.eq(VALID);
+  private BooleanExpression eqStatus(RoomStatus roomStatus) {
+    return room.status.eq(roomStatus);
   }
 
   private BooleanExpression containsTitle(String keyword) {

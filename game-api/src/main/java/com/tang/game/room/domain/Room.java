@@ -4,14 +4,20 @@ import com.tang.core.domain.BaseEntity;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.RoomStatus;
 import com.tang.game.common.type.TeamType;
+import com.tang.game.participant.domain.Participant;
 import com.tang.game.room.dto.RoomForm;
 import java.time.LocalDateTime;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,6 +35,7 @@ import org.hibernate.envers.AuditOverride;
 @Entity
 @ToString
 @AuditOverride(forClass = BaseEntity.class)
+@SQLDelete(sql = "UPDATE room SET deleted_at = current_timestamp, status = 'DELETE' WHERE id = ?")
 public class Room extends BaseEntity {
 
   @Id
@@ -42,6 +49,13 @@ public class Room extends BaseEntity {
   private String password;
 
   private int limitedNumberPeople;
+
+  @OneToMany(mappedBy = "room", orphanRemoval = true)
+  private List<Participant> participants;
+
+  @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
+  @JoinColumn(name = "room_game_status_id", referencedColumnName = "id")
+  private RoomGameStatus roomGameStatus;
 
   @Enumerated(EnumType.STRING)
   private GameType gameType;
