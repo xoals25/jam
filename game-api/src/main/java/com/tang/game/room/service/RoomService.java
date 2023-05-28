@@ -83,10 +83,6 @@ public class RoomService {
         () -> new JamGameException(ErrorCode.NOT_FOUND_ROOM)
     );
 
-    if (form.getLimitedNumberPeople() < getRoomCurrentParticipantCount(roomId)) {
-      throw new JamGameException(ErrorCode.LIMIT_PARTICIPANT_COUNT_NOT_MIN_CURRENT_PARTICIPANT_COUNT);
-    }
-
     validateUpdateRoom(room, form, user.getId());
 
     room.update(form);
@@ -119,6 +115,10 @@ public class RoomService {
     if (roomRepository.existsByTitleAndStatusAndIdNot(form.getTitle(), RoomStatus.VALID,
         room.getId())) {
       throw new JamGameException(ErrorCode.EXIST_ROOM_TITLE);
+    }
+
+    if (form.getLimitedNumberPeople() < getRoomCurrentParticipantCount(room.getId())) {
+      throw new JamGameException(ErrorCode.LIMIT_PARTICIPANT_COUNT_NOT_MIN_CURRENT_PARTICIPANT_COUNT);
     }
   }
 
