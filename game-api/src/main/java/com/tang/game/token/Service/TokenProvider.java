@@ -3,12 +3,9 @@ package com.tang.game.token.Service;
 import static com.tang.game.token.utils.Constants.KEY_ROLES;
 import static com.tang.game.token.utils.Constants.TOKEN_PREFIX;
 
-import com.tang.core.type.SignupPath;
-import com.tang.game.common.exception.JamGameException;
-import com.tang.game.common.type.ErrorCode;
 import com.tang.game.token.dto.JwtTokenDto;
 import com.tang.game.user.domain.User;
-import com.tang.game.user.repository.UserRepository;
+import com.tang.game.user.service.CustomUserDetailService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -32,20 +29,18 @@ public class TokenProvider {
 
   private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24 * 30L; //30일
 
-  private final UserRepository userRepository;
+  private final CustomUserDetailService customUserDetailService;
 
   @Value("${spring.jwt.secret}")
   private String secretKey;
 
   public JwtTokenDto generateToken(
-      String email,
-      SignupPath signupPath,
-      Long id,
+      Long userId,
       List<String> roles
   ) {
     Claims claims = Jwts.claims()
-        .setSubject(signupPath + "&&" + email)
-        .setId(id.toString());
+        .setSubject(userId.toString());
+
     claims.put(KEY_ROLES, roles);
 
     Date now = new Date();
@@ -83,14 +78,14 @@ public class TokenProvider {
   }
 
   public Authentication getAuthentication(String token) {
-    String[] signupPathAndEmail = getSignupPathAndEmail(token).split("&&", 2);
+    UserDetails userDetails =
+        customUserDetailService.loadUserByUsername(parseClaims(token).getSubject());
 
-    UserDetails userDetails = this.userRepository.findByEmailAndSignupPath(
-        signupPathAndEmail[1],
-        SignupPath.valueOf(signupPathAndEmail[0])
-    ).orElseThrow(() -> new JamGameException(ErrorCode.USER_NOT_FOUND));
-
-    return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    return new UsernamePasswordAuthenticationToken(
+        userDetails,
+        "",
+        userDetails.getAuthorities()
+    );
   }
 
   public String getSignupPathAndEmail(String token) {

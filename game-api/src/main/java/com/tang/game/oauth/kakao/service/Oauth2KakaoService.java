@@ -1,9 +1,10 @@
 package com.tang.game.oauth.kakao.service;
 
+import static com.tang.core.type.SignupPath.KAKAO;
 import static com.tang.game.token.utils.Constants.TOKEN_PREFIX;
+import static com.tang.game.user.type.UserStatus.VALID;
 
 import com.tang.core.type.Gender;
-import com.tang.core.type.SignupPath;
 import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
 import com.tang.game.oauth.kakao.dto.KakaoAccount;
@@ -16,7 +17,6 @@ import com.tang.game.token.dto.JwtTokenDto;
 import com.tang.game.token.repository.TokenRepository;
 import com.tang.game.user.domain.User;
 import com.tang.game.user.repository.UserRepository;
-import com.tang.game.user.type.UserStatus;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Objects;
@@ -70,8 +70,6 @@ public class Oauth2KakaoService {
     userRepository.save(user);
 
     JwtTokenDto jwtTokenDto = tokenProvider.generateToken(
-        user.getEmail(),
-        user.getSignupPath(),
         user.getId(),
         Collections.singletonList(user.getStatus().getKey())
     );
@@ -112,10 +110,10 @@ public class Oauth2KakaoService {
           throw new JamGameException(ErrorCode.OAUTH_SING_UP_REQUIRE_EMAIL);
         });
 
-    Optional<User> user = userRepository.findByEmailAndSignupPath(email, SignupPath.KAKAO);
+    Optional<User> user = userRepository.findByEmailAndSignupPathAndStatus(email, KAKAO, VALID);
 
     if (user.isPresent()) {
-      if (user.get().getStatus() == UserStatus.VALID) {
+      if (user.get().getStatus() == VALID) {
         return user.get();
       } else if (!user.get().getDeletedAt().isBefore(LocalDateTime.now().minusDays(7))) {
         throw new JamGameException(ErrorCode.DELETE_YET_REMAIN_7DAYS);
@@ -127,8 +125,8 @@ public class Oauth2KakaoService {
         .nickname(nickname)
         .gender(gender)
         .ageRange(ageRange)
-        .status(UserStatus.VALID)
-        .signupPath(SignupPath.KAKAO)
+        .status(VALID)
+        .signupPath(KAKAO)
         .build();
   }
 
