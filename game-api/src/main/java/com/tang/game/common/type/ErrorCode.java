@@ -20,6 +20,7 @@ public enum ErrorCode {
   USER_ROOM_HOST_UN_MATCH("게임방 주인이 아닙니다."),
   NOT_FOUND_ROOM("존재하지 않는 방입니다."),
   EXIST_ROOM_TITLE("중복된 방 제목입니다."),
+  UN_MATCH_CREATE_ROOM_USER_ID_AND_LOGIN_USER_ID("방을 만든 유저와 로그인한 유저가 동일하지 않습니다."),
 
   // jwt
   NOT_FOUND_TOKEN_MATCHING_USER("해당 유저에 매칭되는 토큰을 찾을 수 없습니다."),

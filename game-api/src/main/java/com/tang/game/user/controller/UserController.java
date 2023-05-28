@@ -2,8 +2,6 @@ package com.tang.game.user.controller;
 
 import static com.tang.game.token.utils.Constants.tokenResponse;
 
-import com.tang.game.common.exception.JamGameException;
-import com.tang.game.common.type.ErrorCode;
 import com.tang.game.user.domain.User;
 import com.tang.game.user.dto.SigninForm;
 import com.tang.game.user.dto.SignupForm;
@@ -39,11 +37,6 @@ public class UserController {
 
   @PostMapping("/withdrawal")
   public void withdrawal(@AuthenticationPrincipal User user) {
-    System.out.println(user);
-    if (user.getUsername() == null) {
-      throw new JamGameException(ErrorCode.USER_NOT_FOUND);
-    }
-
     userService.withdrawal(user.getId());
   }
 
