@@ -38,6 +38,15 @@ public class Token extends BaseEntity {
 
   private String oauthAccessToken;
 
+  public static Token of(Long userId, JwtTokenDto jwtTokenDto) {
+    return Token.builder()
+        .userId(userId)
+        .jwtAccessToken(jwtTokenDto.getJwtAccessToken())
+        .jwtGrantType(jwtTokenDto.getGrantType())
+        .jwtRefreshToken(jwtTokenDto.getJwtRefreshToken())
+        .build();
+  }
+
   public static Token of(Long userId, JwtTokenDto jwtTokenDto, String oauthAccessToken) {
     return Token.builder()
         .userId(userId)
