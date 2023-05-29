@@ -35,8 +35,6 @@ public class TokenService {
 
     token.setJwtAccessToken(newAccessToken);
 
-    tokenRepository.save(token);
-
     return newAccessToken;
   }
 }

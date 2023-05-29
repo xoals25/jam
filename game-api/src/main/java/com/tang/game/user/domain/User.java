@@ -3,6 +3,7 @@ package com.tang.game.user.domain;
 import com.tang.core.domain.BaseEntity;
 import com.tang.core.type.Gender;
 import com.tang.core.type.SignupPath;
+import com.tang.game.user.dto.SignupForm;
 import com.tang.game.user.type.UserStatus;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,11 +23,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.AuditOverride;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
+@ToString
 @Entity
 @Getter
 @Setter
@@ -34,7 +37,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 @AllArgsConstructor
 @AuditOverride(forClass = BaseEntity.class)
-@ToString
+@SQLDelete(sql = "UPDATE user SET deleted_at = current_timestamp, status = 'DELETE' WHERE id = ?")
 public class User extends BaseEntity implements UserDetails {
 
   @Id
@@ -46,6 +49,9 @@ public class User extends BaseEntity implements UserDetails {
 
   @Column(nullable = false)
   private String nickname;
+
+  @Column(nullable = false)
+  private String password;
 
   @Enumerated(EnumType.STRING)
   private Gender gender;
@@ -62,6 +68,18 @@ public class User extends BaseEntity implements UserDetails {
 
   private LocalDateTime deletedAt;
 
+  public static User of(SignupForm form, PasswordEncoder passwordEncoder) {
+    return User.builder()
+        .email(form.getEmail())
+        .nickname(form.getNickname())
+        .gender(form.getGender())
+        .password(passwordEncoder.encode(form.getPassword()))
+        .ageRange(form.getAgeRange())
+        .status(UserStatus.VALID)
+        .signupPath(SignupPath.JAM)
+        .build();
+  }
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     List<String> roles = new ArrayList<>();
@@ -75,12 +93,12 @@ public class User extends BaseEntity implements UserDetails {
 
   @Override
   public String getPassword() {
-    return null;
+    return this.password;
   }
 
   @Override
   public String getUsername() {
-    return this.nickname;
+    return this.id.toString();
   }
 
   @Override

@@ -8,11 +8,13 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -20,11 +22,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.TeamType;
 import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.service.RoomService;
+import com.tang.game.token.Service.TokenProvider;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +44,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(RoomController.class)
@@ -50,10 +55,17 @@ class RoomControllerTest {
   @MockBean
   private RoomService roomService;
 
+  @MockBean
+  private TokenProvider tokenProvider;
+
   @Autowired
   private MockMvc mockMvc;
 
+  @Autowired
+  private ObjectMapper objectMapper;
+
   @Test
+  @WithMockUser
   @DisplayName("성공 - 게임 방 생성")
   void
   successCreateRoom() throws Exception {
@@ -69,9 +81,16 @@ class RoomControllerTest {
         .build();
 
     roomService.createRoom(form);
+
+    String body = objectMapper.writeValueAsString(getRoomForm());
+
     //when
     //then
-    mockMvc.perform(post("/rooms"))
+    mockMvc.perform(post("/rooms")
+            .content(body)
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(csrf())
+        )
         .andDo(print())
         .andExpect(status().isOk())
         .andDo(
@@ -85,10 +104,9 @@ class RoomControllerTest {
 
   @Test
   @DisplayName("성공 - 게임 방 수정")
-  void
-  successUpdateRoom() throws Exception {
+  @WithMockUser
+  void successUpdateRoom() throws Exception {
     //given
-
     RoomForm form = RoomForm.builder()
         .userId(1L)
         .title("게임방 제목")
@@ -101,7 +119,10 @@ class RoomControllerTest {
     roomService.updateRoom(1L, 1L, form);
     //when
     //then
-    mockMvc.perform(post("/rooms/1"))
+    mockMvc.perform(put("/rooms/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(csrf())
+        )
         .andDo(print())
         .andExpect(status().isOk())
         .andDo(
@@ -158,6 +179,7 @@ class RoomControllerTest {
 
   @Test
   @DisplayName("성공 게임 방 목록 조회")
+  @WithMockUser
   void
   successSearchRooms() throws Exception {
     //given
@@ -294,6 +316,17 @@ class RoomControllerTest {
                 )
             )
         );
+  }
+
+  private RoomForm getRoomForm() {
+    return RoomForm.builder()
+        .userId(1L)
+        .title("게임방 제목")
+        .password("0123")
+        .limitedNumberPeople(8)
+        .gameType(GAME_ORDER)
+        .teamType(PERSONAL)
+        .build();
   }
 
 }

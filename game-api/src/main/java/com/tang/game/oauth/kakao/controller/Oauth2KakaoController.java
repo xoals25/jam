@@ -1,9 +1,10 @@
 package com.tang.game.oauth.kakao.controller;
 
+import static com.tang.game.token.utils.Constants.tokenResponse;
+
 import com.tang.game.oauth.kakao.service.Oauth2KakaoService;
 import com.tang.game.user.domain.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +26,7 @@ public class Oauth2KakaoController {
 
   @GetMapping("/login")
   public ResponseEntity<?> login(@RequestParam String code) {
-    return ResponseEntity.ok()
-        .header(HttpHeaders.AUTHORIZATION, oauth2KakaoService.login(code).toString())
-        .build();
+    return tokenResponse(oauth2KakaoService.login(code));
   }
 
   @GetMapping("/logout")
