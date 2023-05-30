@@ -58,7 +58,7 @@ class RoomServiceTest {
   private RoomGameStatusRepository roomGameStatusRepository;
 
   @Mock
-  private RoomParticipantCountService roomParticipantCountService;
+  private RoomParticipantService roomParticipantService;
 
   @Mock
   private ParticipantRepository participantRepository;
@@ -131,7 +131,7 @@ class RoomServiceTest {
     given(roomRepository.existsByTitleAndStatusAndIdNot(anyString(), any(), anyLong()))
         .willReturn(false);
 
-    given(roomParticipantCountService.getRoomParticipantCount(anyLong()))
+    given(roomParticipantService.getRoomParticipantCount(anyLong()))
         .willReturn(getRoomParticipantCount());
 
     ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
@@ -215,7 +215,7 @@ class RoomServiceTest {
     given(roomRepository.findById(anyLong()))
         .willReturn(Optional.of(getRoom()));
 
-    given(roomParticipantCountService.getRoomParticipantCount(anyLong()))
+    given(roomParticipantService.getRoomParticipantCount(anyLong()))
         .willReturn(getRoomParticipantCount());
 
 
@@ -309,7 +309,7 @@ class RoomServiceTest {
         any(Pageable.class)
     )).willReturn(new PageImpl<>(roomDtos, PageRequest.of(0, 5), 3));
 
-    given(roomParticipantCountService.getRoomParticipantCount(anyLong()))
+    given(roomParticipantService.getRoomParticipantCount(anyLong()))
         .willReturn(getRoomParticipantCount());
 
     //when
@@ -339,7 +339,7 @@ class RoomServiceTest {
     given(roomQuerydsl.findByIdAndStatus(anyLong()))
         .willReturn(Optional.ofNullable(getRoomDto()));
 
-    given(roomParticipantCountService.getRoomParticipantCount(anyLong()))
+    given(roomParticipantService.getRoomParticipantCount(anyLong()))
         .willReturn(getRoomParticipantCount());
 
     //when

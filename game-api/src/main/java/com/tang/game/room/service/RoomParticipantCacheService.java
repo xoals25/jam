@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RoomParticipantCountCacheService {
+public class RoomParticipantCacheService {
 
   private final ParticipantRepository participantRepository;
 

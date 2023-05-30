@@ -9,22 +9,26 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class RoomParticipantCountService {
+public class RoomParticipantService {
 
-  private final RoomParticipantCountCacheService roomParticipantCountCacheService;
+  private final RoomParticipantCacheService roomParticipantCacheService;
 
   private final ObjectAndStringParsing objectAndStringParsing;
 
   public RoomParticipantCount getRoomParticipantCount(Long roomId) {
 
     return objectAndStringParsing.stringConvertObject(
-        roomParticipantCountCacheService
+        roomParticipantCacheService
             .getRoomParticipantCountToString(roomId),
         RoomParticipantCount.class
     );
   }
 
   public void saveRoomParticipantWithRoomHost(Room room, RoomForm form) {
-    roomParticipantCountCacheService.saveRoomParticipantWithRoomHost(room, form);
+    roomParticipantCacheService.saveRoomParticipantWithRoomHost(room, form);
+  }
+
+  public void saveRoomParticipant(Room room, Long userId) {
+    roomParticipantCacheService.saveRoomParticipant(room, userId);
   }
 }
