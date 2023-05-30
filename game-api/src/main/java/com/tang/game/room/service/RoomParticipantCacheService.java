@@ -41,7 +41,7 @@ public class RoomParticipantCacheService {
 
   @CachePut(value = ROOM_PARTICIPANT_COUNT, key = "#room.id")
   public String saveRoomParticipantWithRoomHost(Room room, RoomForm form) {
-    participantRepository.save(Participant.of(room, form, 1));
+    participantRepository.save(Participant.of(room, form));
 
     return objectAndStringParsing.objectConvertString(
         RoomParticipantCount.of(room.getLimitedNumberPeople(), 1)
@@ -49,8 +49,8 @@ public class RoomParticipantCacheService {
   }
 
   @CachePut(value = ROOM_PARTICIPANT_COUNT, key = "#room.id")
-  public RoomParticipantCount saveRoomParticipant(Room room, RoomForm form, int gameOrder) {
-    participantRepository.save(Participant.of(room, form, gameOrder));
+  public RoomParticipantCount saveRoomParticipant(Room room, Long userId) {
+    participantRepository.save(Participant.of(room, userId));
 
     RoomParticipantCount roomParticipantCount = objectAndStringParsing.stringConvertObject(
         getRoomParticipantCountToString(room.getId()),
