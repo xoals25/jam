@@ -27,7 +27,7 @@ public class RoomService {
 
   private final RoomRepository roomRepository;
 
-  private final RoomParticipantCountService roomParticipantCountService;
+  private final RoomParticipantService roomParticipantService;
 
   private final ParticipantRepository participantRepository;
 
@@ -49,7 +49,7 @@ public class RoomService {
 
     roomGameStatusRepository.save(RoomGameStatus.from(room));
 
-    roomParticipantCountService.saveRoomParticipantWithRoomHost(room, form);
+    roomParticipantService.saveRoomParticipantWithRoomHost(room, form);
 
     return room.getId();
   }
@@ -123,7 +123,7 @@ public class RoomService {
   }
 
   private int getRoomCurrentParticipantCount(Long roomId) {
-    return roomParticipantCountService
+    return roomParticipantService
         .getRoomParticipantCount(roomId)
         .getCurrentNumberPeople();
   }
