@@ -76,3 +76,4 @@ public class UserService {
         .orElseThrow(() -> new JamGameException(ErrorCode.USER_NOT_FOUND));
   }
 }
+
