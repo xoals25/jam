@@ -22,6 +22,10 @@ public enum ErrorCode {
   EXIST_ROOM_TITLE("중복된 방 제목입니다."),
   UN_MATCH_CREATE_ROOM_USER_ID_AND_LOGIN_USER_ID("방을 만든 유저와 로그인한 유저가 동일하지 않습니다."),
   LIMIT_PARTICIPANT_COUNT_NOT_MIN_CURRENT_PARTICIPANT_COUNT("방 제한 인원은 현재 참여 인원 보다 작을 수 없습니다."),
+  ROOM_PARTICIPANT_FULL("방이 인원이 꽉 찼습니다."),
+  ALREADY_ROOM_ENTER_USER("이미 방에 참가한 유저입니다."),
+  USER_NOT_ROOM_PARTICIPANT("해당 유저는 해당 방 참가자가 아닙니다."),
+  NOT_FOUND_PARTICIPANT("참가자를 찾을 수 없습니다."),
 
   // jwt
   NOT_FOUND_TOKEN_MATCHING_USER("해당 유저에 매칭되는 토큰을 찾을 수 없습니다."),
