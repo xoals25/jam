@@ -81,11 +81,10 @@ public class RoomController {
   }
 
   @DeleteMapping("/{roomId}")
-  public void deleteRoom(@PathVariable Long roomId) {
-    // 유저 기능 추가 되면 삭제 예정
-    Long userId = 1L;
-
-    roomService.deleteRoom(userId, roomId);
+  public void deleteRoom(
+      @AuthenticationPrincipal User user,
+      @PathVariable Long roomId) {
+    roomService.deleteRoom(user, roomId);
   }
 
   @GetMapping("/{roomId}/participants/{participantUserId}")

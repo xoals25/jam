@@ -133,10 +133,10 @@ public class RoomService {
   }
 
   @Transactional
-  public void deleteRoom(Long userId, Long roomId) {
+  public void deleteRoom(User user, Long roomId) {
     Room room = getRoomFindByIdAndStatus(roomId, RoomStatus.VALID);
 
-    if (!Objects.equals(room.getHostUserId(), userId)) {
+    if (!Objects.equals(room.getHostUserId(), user.getId())) {
       throw new JamGameException(ErrorCode.USER_ROOM_HOST_UN_MATCH);
     }
 
