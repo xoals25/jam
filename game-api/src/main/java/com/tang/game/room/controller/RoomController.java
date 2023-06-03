@@ -38,6 +38,22 @@ public class RoomController {
     return ResponseEntity.ok(roomService.createRoom(user, form));
   }
 
+  @PostMapping("/{roomId}/enter")
+  public ResponseEntity<String> enterRoom(
+      @AuthenticationPrincipal User user,
+      @PathVariable Long roomId
+  ) {
+    return ResponseEntity.ok(roomService.enterRoom(roomId, user));
+  }
+
+  @PostMapping("/{roomId}/leave")
+  public ResponseEntity<String> leaveRoom(
+      @AuthenticationPrincipal User user,
+      @PathVariable Long roomId
+  ) {
+    return ResponseEntity.ok(roomService.leaveRoom(roomId, user));
+  }
+
   @GetMapping
   public ResponseEntity<Page<RoomDto>> searchRooms(
       @RequestParam @Nullable String keyword,
