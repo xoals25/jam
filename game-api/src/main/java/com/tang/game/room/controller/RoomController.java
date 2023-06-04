@@ -38,6 +38,22 @@ public class RoomController {
     return ResponseEntity.ok(roomService.createRoom(user, form));
   }
 
+  @PostMapping("/{roomId}/enter")
+  public ResponseEntity<String> enterRoom(
+      @AuthenticationPrincipal User user,
+      @PathVariable Long roomId
+  ) {
+    return ResponseEntity.ok(roomService.enterRoom(roomId, user));
+  }
+
+  @PostMapping("/{roomId}/leave")
+  public ResponseEntity<String> leaveRoom(
+      @AuthenticationPrincipal User user,
+      @PathVariable Long roomId
+  ) {
+    return ResponseEntity.ok(roomService.leaveRoom(roomId, user));
+  }
+
   @GetMapping
   public ResponseEntity<Page<RoomDto>> searchRooms(
       @RequestParam @Nullable String keyword,
@@ -65,11 +81,10 @@ public class RoomController {
   }
 
   @DeleteMapping("/{roomId}")
-  public void deleteRoom(@PathVariable Long roomId) {
-    // 유저 기능 추가 되면 삭제 예정
-    Long userId = 1L;
-
-    roomService.deleteRoom(userId, roomId);
+  public void deleteRoom(
+      @AuthenticationPrincipal User user,
+      @PathVariable Long roomId) {
+    roomService.deleteRoom(user, roomId);
   }
 
   @GetMapping("/{roomId}/participants/{participantUserId}")

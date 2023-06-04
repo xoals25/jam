@@ -5,7 +5,6 @@ import static com.tang.game.participant.type.ParticipantStatus.WAIT;
 import com.tang.core.domain.BaseEntity;
 import com.tang.game.participant.type.ParticipantStatus;
 import com.tang.game.room.domain.Room;
-import com.tang.game.room.dto.RoomForm;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -46,14 +45,6 @@ public class Participant extends BaseEntity {
         .room(room)
         .userId(room.getHostUserId())
         .status(WAIT)
-        .build();
-  }
-
-  public static Participant of(Room room, RoomForm form) {
-    return Participant.builder()
-        .room(room)
-        .userId(form.getUserId())
-        .status(ParticipantStatus.WAIT)
         .build();
   }
 

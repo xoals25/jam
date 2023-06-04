@@ -1,6 +1,7 @@
 package com.tang.game.room.controller;
 
 
+import static com.tang.game.common.constants.ResponseConstant.SUCCESS;
 import static com.tang.game.common.type.GameType.GAME_ORDER;
 import static com.tang.game.common.type.TeamType.PERSONAL;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,6 +47,7 @@ import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 @WebMvcTest(RoomController.class)
 @AutoConfigureRestDocs
@@ -125,13 +127,16 @@ class RoomControllerTest {
 
   @Test
   @DisplayName("성공 게임 방 삭제")
-  void
-  successDeleteRoom() throws Exception {
+  @WithMockUser
+  void successDeleteRoom() throws Exception {
     //given
-    roomService.deleteRoom(anyLong(), anyLong());
+
     //when
+    roomService.deleteRoom(any(), anyLong());
+
     //then
-    mockMvc.perform(delete("/rooms/1"))
+    mockMvc.perform(delete("/rooms/1")
+            .with(csrf()))
         .andDo(print())
         .andExpect(status().isOk())
         .andDo(
@@ -145,6 +150,7 @@ class RoomControllerTest {
 
   @Test
   @DisplayName("성공 참가자 확인")
+  @WithMockUser
   void successIsRoomParticipant() throws Exception {
     //given
     given(roomService.isRoomParticipant(anyLong(), anyLong()))
@@ -152,7 +158,8 @@ class RoomControllerTest {
 
     //when
     //then
-    mockMvc.perform(get("/rooms/{roomId}/participants/{participantUserId}", 1L, 1L))
+    mockMvc.perform(get("/rooms/{roomId}/participants/{participantUserId}", 1L, 1L)
+            .with(csrf()))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").value(true))
@@ -312,6 +319,60 @@ class RoomControllerTest {
         );
   }
 
+  @Test
+  @DisplayName("성공 게임 방 참가")
+  @WithMockUser
+  void successEnterRoom() throws Exception {
+    //given
+    given(roomService.enterRoom(anyLong(), any()))
+        .willReturn(SUCCESS);
+
+    //when
+    ResultActions resultActions =
+        mockMvc.perform(post("/rooms/{roomId}/enter", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print());
+
+    //then
+    resultActions
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value("success"))
+        .andDo(document(
+            "{class-name}/{method-name}",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint())
+        ));
+  }
+
+  @Test
+  @DisplayName("성공 게임 방 나가기")
+  @WithMockUser
+  void successLeaveRoom() throws Exception {
+    //given
+    given(roomService.leaveRoom(anyLong(), any()))
+        .willReturn(SUCCESS);
+
+    //when
+    ResultActions resultActions =
+        mockMvc.perform(post("/rooms/{roomId}/leave", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print());
+
+    //then
+    resultActions
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").value("success"))
+        .andDo(document(
+            "{class-name}/{method-name}",
+            preprocessRequest(prettyPrint()),
+            preprocessResponse(prettyPrint())
+        ));
+  }
+
   private RoomForm getRoomForm() {
     return RoomForm.builder()
         .userId(1L)
@@ -322,5 +383,4 @@ class RoomControllerTest {
         .teamType(PERSONAL)
         .build();
   }
-
 }

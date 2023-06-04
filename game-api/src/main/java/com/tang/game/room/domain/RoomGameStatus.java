@@ -1,7 +1,5 @@
 package com.tang.game.room.domain;
 
-import static com.tang.game.room.util.Constants.GAME_CREATE_FIRST_ORDER;
-
 import com.tang.core.domain.BaseEntity;
 import com.tang.game.room.type.GameStatus;
 import java.time.LocalDateTime;
@@ -42,10 +40,10 @@ public class RoomGameStatus extends BaseEntity {
 
   private LocalDateTime startedAt;
 
-  public static RoomGameStatus from(Room room) {
+  public static RoomGameStatus of(Room room, int gameTalkOrder) {
     return RoomGameStatus.builder()
         .room(room)
-        .gameTalkOrder(GAME_CREATE_FIRST_ORDER)
+        .gameTalkOrder(gameTalkOrder)
         .status(GameStatus.WAIT)
         .build();
   }

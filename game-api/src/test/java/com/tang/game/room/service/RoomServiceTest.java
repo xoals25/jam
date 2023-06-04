@@ -1,9 +1,10 @@
 package com.tang.game.room.service;
 
+import static com.tang.game.common.constants.ResponseConstant.SUCCESS;
 import static com.tang.game.common.type.GameType.GAME_ORDER;
 import static com.tang.game.common.type.RoomStatus.DELETE;
+import static com.tang.game.common.type.RoomStatus.VALID;
 import static com.tang.game.common.type.TeamType.PERSONAL;
-import static com.tang.game.room.util.Constants.GAME_CREATE_FIRST_ORDER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,12 +20,12 @@ import com.tang.game.common.exception.JamGameException;
 import com.tang.game.common.type.ErrorCode;
 import com.tang.game.common.type.GameType;
 import com.tang.game.common.type.TeamType;
+import com.tang.game.participant.dto.ParticipantUserIdMapping;
 import com.tang.game.participant.repository.ParticipantRepository;
 import com.tang.game.room.domain.Room;
 import com.tang.game.room.domain.RoomGameStatus;
 import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
-import com.tang.game.room.dto.RoomParticipantCount;
 import com.tang.game.room.repository.RoomGameStatusRepository;
 import com.tang.game.room.repository.RoomQuerydsl;
 import com.tang.game.room.repository.RoomRepository;
@@ -84,8 +85,8 @@ class RoomServiceTest {
 //        .willReturn(void.class);
 
     ArgumentCaptor<Room> roomCaptor = ArgumentCaptor.forClass(Room.class);
-    ArgumentCaptor<RoomGameStatus> roomGameStatusCaptor = ArgumentCaptor.forClass(RoomGameStatus.class);
-
+    ArgumentCaptor<RoomGameStatus> roomGameStatusCaptor = ArgumentCaptor.forClass(
+        RoomGameStatus.class);
 
     //when
     Long roomId = roomService.createRoom(getUser(), getRoomForm());
@@ -101,7 +102,6 @@ class RoomServiceTest {
 
     verify(roomGameStatusRepository, times(1)).save(roomGameStatusCaptor.capture());
     assertEquals(roomGameStatusCaptor.getValue().getRoom().getId(), 1L);
-    assertEquals(roomGameStatusCaptor.getValue().getGameTalkOrder(), GAME_CREATE_FIRST_ORDER);
     assertEquals(roomGameStatusCaptor.getValue().getStatus(), GameStatus.WAIT);
   }
 
@@ -114,7 +114,7 @@ class RoomServiceTest {
 
     //when
     JamGameException exception = assertThrows(JamGameException.class,
-        () -> roomService.createRoom(getUser(),getRoomForm()));
+        () -> roomService.createRoom(getUser(), getRoomForm()));
 
     //then
     assertEquals(ErrorCode.EXIST_ROOM_TITLE, exception.getErrorCode());
@@ -132,7 +132,7 @@ class RoomServiceTest {
         .willReturn(false);
 
     given(roomParticipantService.getRoomParticipantCount(anyLong()))
-        .willReturn(getRoomParticipantCount());
+        .willReturn(3);
 
     ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
 
@@ -174,8 +174,14 @@ class RoomServiceTest {
   @WithMockUser
   void failUpdateRoom_HostUnMatch() {
     //given
+    Room room = Room.builder()
+        .id(2L)
+        .status(VALID)
+        .hostUserId(2L)
+        .build();
+
     given(roomRepository.findById(anyLong()))
-        .willReturn(Optional.of(getRoom()));
+        .willReturn(Optional.of(room));
 
     //when
     JamGameException exception = assertThrows(JamGameException.class,
@@ -216,8 +222,7 @@ class RoomServiceTest {
         .willReturn(Optional.of(getRoom()));
 
     given(roomParticipantService.getRoomParticipantCount(anyLong()))
-        .willReturn(getRoomParticipantCount());
-
+        .willReturn(3);
 
     RoomForm roomForm = getRoomForm();
     roomForm.setLimitedNumberPeople(2);
@@ -227,7 +232,8 @@ class RoomServiceTest {
         () -> roomService.updateRoom(getUser(), 1L, roomForm));
 
     //then
-    assertEquals(ErrorCode.LIMIT_PARTICIPANT_COUNT_NOT_MIN_CURRENT_PARTICIPANT_COUNT, exception.getErrorCode());
+    assertEquals(ErrorCode.LIMIT_PARTICIPANT_COUNT_NOT_MIN_CURRENT_PARTICIPANT_COUNT,
+        exception.getErrorCode());
   }
 
   @Test
@@ -235,13 +241,13 @@ class RoomServiceTest {
   void successDeleteRoom() {
     //given
     Room room = getRoom();
-    given(roomRepository.findByIdAndStatus(anyLong(), any()))
+    given(roomRepository.findById(anyLong()))
         .willReturn(Optional.of(room));
 
     ArgumentCaptor<Room> captor = ArgumentCaptor.forClass(Room.class);
 
     //when
-    roomService.deleteRoom(1L, 1L);
+    roomService.deleteRoom(getUser(), 1L);
 
     //then
     verify(roomRepository, times(1)).delete(captor.capture());
@@ -257,12 +263,12 @@ class RoomServiceTest {
   @DisplayName("실패 방 삭제 - 존재하지 않는 방")
   void failDeleteRoom_NotFoundRoom() {
     //given
-    given(roomRepository.findByIdAndStatus(anyLong(), any()))
+    given(roomRepository.findById(anyLong()))
         .willReturn(Optional.empty());
 
     //when
     JamGameException exception = assertThrows(JamGameException.class,
-        () -> roomService.deleteRoom(1L, 1L));
+        () -> roomService.deleteRoom(getUser(), 1L));
 
     //then
     assertEquals(ErrorCode.NOT_FOUND_ROOM, exception.getErrorCode());
@@ -272,12 +278,18 @@ class RoomServiceTest {
   @DisplayName("실패 방 삭제 - 호스트 불일치")
   void failDeleteRoom_RoomHostUnMatch() {
     //given
-    given(roomRepository.findByIdAndStatus(anyLong(), any()))
-        .willReturn(Optional.of(getRoom()));
+    Room room = Room.builder()
+        .id(1L)
+        .status(VALID)
+        .hostUserId(2L)
+        .build();
+
+    given(roomRepository.findById(anyLong()))
+        .willReturn(Optional.of(room));
 
     //when
     JamGameException exception = assertThrows(JamGameException.class,
-        () -> roomService.deleteRoom(2L, 1L));
+        () -> roomService.deleteRoom(getUser(), 1L));
 
     //then
     assertEquals(ErrorCode.USER_ROOM_HOST_UN_MATCH, exception.getErrorCode());
@@ -310,7 +322,7 @@ class RoomServiceTest {
     )).willReturn(new PageImpl<>(roomDtos, PageRequest.of(0, 5), 3));
 
     given(roomParticipantService.getRoomParticipantCount(anyLong()))
-        .willReturn(getRoomParticipantCount());
+        .willReturn(3);
 
     //when
     Page<RoomDto> response = roomService.searchRooms(
@@ -340,7 +352,7 @@ class RoomServiceTest {
         .willReturn(Optional.ofNullable(getRoomDto()));
 
     given(roomParticipantService.getRoomParticipantCount(anyLong()))
-        .willReturn(getRoomParticipantCount());
+        .willReturn(3);
 
     //when
     RoomDto roomDto = roomService.searchRoom(1L);
@@ -359,7 +371,7 @@ class RoomServiceTest {
   @DisplayName("성공 참가자 확인")
   void successIsRoomParticipant() {
     //given
-    given(participantRepository.existsByRoomIdAndUserId(anyLong(), any()))
+    given(participantRepository.existsByRoomIdAndUserIdAndStatusNotIn(anyLong(), any(), any()))
         .willReturn(true);
 
     //when
@@ -367,6 +379,100 @@ class RoomServiceTest {
 
     //then
     assertTrue(isParticipant);
+  }
+
+  @Test
+  @WithMockUser
+  @DisplayName("성공 방 입장")
+  void successEnterRoom() {
+    //given
+    given(roomRepository.findById(anyLong()))
+        .willReturn(Optional.of(getRoom()));
+
+    //when
+    String result = roomService.enterRoom(1L, getUser());
+
+    //then
+    assertEquals(result, SUCCESS);
+  }
+
+  @Test
+  @WithMockUser
+  @DisplayName("실패 방 입장 - 존재하지 않는 방")
+  void failEnterRoom_NOT_FOUND_ROOM() {
+    //given
+    given(roomRepository.findById(anyLong()))
+        .willReturn(Optional.empty());
+
+    //when
+    JamGameException exception = assertThrows(JamGameException.class,
+        () -> roomService.enterRoom(1L, getUser()));
+
+    //then
+    assertEquals(ErrorCode.NOT_FOUND_ROOM, exception.getErrorCode());
+  }
+
+  @Test
+  @WithMockUser
+  @DisplayName("성공 방 나가기 - 인원 수 0명 - 방 파괴")
+  void successLeaveRoomAndRoomDelete() {
+    //given
+    given(roomParticipantService.leaveRoomAndGetParticipantCount(anyLong(), anyLong()))
+        .willReturn(1);
+
+    //when
+    String result = roomService.leaveRoom(1L, getUser());
+
+    //then
+    verify(roomRepository, times(1)).deleteById(anyLong());
+
+    assertEquals(result, SUCCESS);
+  }
+
+  @Test
+  @WithMockUser
+  @DisplayName("성공 방 나가기 - 인원 수 2명 이상")
+  void successLeaveRoom() {
+    //given
+    given(roomParticipantService.leaveRoomAndGetParticipantCount(anyLong(), anyLong()))
+        .willReturn(3);
+
+    given(roomRepository.findByIdAndHostUserId(anyLong(), anyLong()))
+        .willReturn(Optional.empty());
+
+    //when
+    String result = roomService.leaveRoom(1L, getUser());
+
+    //then
+    assertEquals(result, SUCCESS);
+  }
+
+  @Test
+  @WithMockUser
+  @DisplayName("성공 방 방장 나가기 - 방장 변경 (인원수 2명 이상)")
+  void successHostLeaveRoom() {
+    //given
+    given(roomParticipantService.leaveRoomAndGetParticipantCount(anyLong(), anyLong()))
+        .willReturn(3);
+
+    given(roomRepository.findByIdAndHostUserId(anyLong(), anyLong()))
+        .willReturn(Optional.of(getRoom()));
+
+    ParticipantUserIdMapping participantUserIdMapping = () -> 2L;
+
+    given(participantRepository.findTopByRoomIdAndStatusNotInOrderByModifiedAtAsc(anyLong(), any()))
+        .willReturn(Optional.of(participantUserIdMapping));
+
+    ArgumentCaptor<Room> roomCaptor = ArgumentCaptor.forClass(Room.class);
+
+    //when
+    String result = roomService.leaveRoom(1L, getUser());
+
+    verify(roomRepository, times(1)).save(roomCaptor.capture());
+
+    //then
+    assertEquals(roomCaptor.getValue().getHostUserId(), 2L);
+    assertEquals(result, SUCCESS);
   }
 
   private User getUser() {
@@ -381,6 +487,8 @@ class RoomServiceTest {
   private Room getRoom() {
     Room room = Room.from(getRoomForm());
     room.setId(1L);
+    room.setStatus(VALID);
+    room.setHostUserId(1L);
     return room;
   }
 
@@ -404,13 +512,6 @@ class RoomServiceTest {
         .teamType(PERSONAL)
         .limitedNumberPeople(4)
         .password("123")
-        .build();
-  }
-
-  private RoomParticipantCount getRoomParticipantCount() {
-    return RoomParticipantCount.builder()
-        .limitedNumberPeople(3)
-        .currentNumberPeople(3)
         .build();
   }
 }
