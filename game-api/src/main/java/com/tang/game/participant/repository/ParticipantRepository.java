@@ -1,8 +1,8 @@
 package com.tang.game.participant.repository;
 
+import com.tang.core.type.ParticipantStatus;
 import com.tang.game.participant.domain.Participant;
 import com.tang.game.participant.dto.ParticipantUserIdMapping;
-import com.tang.game.participant.type.ParticipantStatus;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,15 +20,15 @@ public interface ParticipantRepository extends JpaRepository<Participant, Long> 
       List<ParticipantStatus> statuses
   );
 
-  int countAllByRoomId(Long roomId);
+  int countAllByRoomIdAndDeletedAtIsNull(Long roomId);
 
   @Transactional
   @Modifying(clearAutomatically = true)
   @Query(value = "UPDATE Participant " +
-      "SET status=:status " +
+      "SET status=:status, deletedAt=current_timestamp " +
       "WHERE userId=:userId " +
       "AND room.id=:roomId")
-  void deleteByUserIdAndRoomId(
+  void deleteByUserIdAndRoomIdInQuery(
       Long userId,
       Long roomId,
       ParticipantStatus status

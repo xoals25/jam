@@ -1,8 +1,8 @@
 package com.tang.game.room.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.tang.game.common.type.GameType;
-import com.tang.game.common.type.TeamType;
+import com.tang.core.type.GameType;
+import com.tang.core.type.TeamType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

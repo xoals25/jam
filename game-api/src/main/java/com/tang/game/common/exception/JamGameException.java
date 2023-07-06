@@ -1,7 +1,7 @@
 package com.tang.game.common.exception;
 
 
-import com.tang.game.common.type.ErrorCode;
+import com.tang.core.type.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,8 +10,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class JamGameException extends RuntimeException {
 

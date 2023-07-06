@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tang.core.type.Gender;
 import com.tang.core.type.SignupPath;
 import com.tang.game.WithMockCustomUser;
-import com.tang.game.token.Service.TokenProvider;
+import com.tang.game.token.service.TokenProvider;
 import com.tang.game.token.dto.JwtTokenDto;
 import com.tang.game.user.domain.User;
 import com.tang.game.user.dto.SigninForm;

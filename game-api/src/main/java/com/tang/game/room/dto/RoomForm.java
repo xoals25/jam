@@ -1,7 +1,7 @@
 package com.tang.game.room.dto;
 
-import com.tang.game.common.type.GameType;
-import com.tang.game.common.type.TeamType;
+import com.tang.core.type.GameType;
+import com.tang.core.type.TeamType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;

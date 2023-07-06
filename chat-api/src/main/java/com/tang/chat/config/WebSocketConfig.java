@@ -1,5 +1,9 @@
 package com.tang.chat.config;
 
+import static com.tang.chat.common.constant.ChatConstants.DESTINATION_PREFIX;
+
+import com.tang.chat.application.InboundInterceptor;
+import com.tang.chat.common.exception.StompExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,16 +21,25 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
   private final InboundInterceptor inboundInterceptor;
 
+  private final StompExceptionHandler stompExceptionHandler;
+
+
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
-    registry.enableSimpleBroker("/rooms");
+    registry.enableSimpleBroker(DESTINATION_PREFIX);
     registry.setApplicationDestinationPrefixes("/chats");
+
   }
 
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
-    registry.addEndpoint("/ws")
-        .setAllowedOrigins("*");
+    registry
+        .setErrorHandler(stompExceptionHandler)
+        .addEndpoint("/ws")
+//        .setAllowedOriginPatterns("*")
+//        .withSockJS();
+        .setAllowedOrigins("*")
+    ;
   }
 
   @Override

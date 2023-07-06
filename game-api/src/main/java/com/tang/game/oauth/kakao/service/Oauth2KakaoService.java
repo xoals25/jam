@@ -1,17 +1,17 @@
 package com.tang.game.oauth.kakao.service;
 
 import static com.tang.core.type.SignupPath.KAKAO;
-import static com.tang.game.token.utils.Constants.TOKEN_PREFIX;
+import static com.tang.core.constants.TokenConstants.TOKEN_PREFIX;
 import static com.tang.game.user.type.UserStatus.VALID;
 
 import com.tang.core.type.Gender;
 import com.tang.game.common.exception.JamGameException;
-import com.tang.game.common.type.ErrorCode;
+import com.tang.core.type.ErrorCode;
 import com.tang.game.oauth.kakao.dto.KakaoAccount;
 import com.tang.game.oauth.kakao.dto.KakaoOauthTokenAndScope;
 import com.tang.game.oauth.kakao.dto.KakaoOauthUserInfo;
 import com.tang.game.oauth.kakao.dto.KakaoProfile;
-import com.tang.game.token.Service.TokenProvider;
+import com.tang.game.token.service.TokenProvider;
 import com.tang.game.token.domain.Token;
 import com.tang.game.token.dto.JwtTokenDto;
 import com.tang.game.token.repository.TokenRepository;

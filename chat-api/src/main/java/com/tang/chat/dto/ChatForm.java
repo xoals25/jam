@@ -8,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 public class ChatForm {
 
@@ -17,8 +16,23 @@ public class ChatForm {
   @Builder
   @NoArgsConstructor
   @AllArgsConstructor
-  @ToString
   public static class Request {
+    @NotNull
+    private MessageType type;
+    @NotNull
+    private Long senderId;
+    @NotNull
+    private Long roomId;
+    @NotBlank
+    private String message;
+  }
+
+  @Getter
+  @Setter
+  @Builder
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class Response {
     @NotNull
     private MessageType type;
     @NotNull

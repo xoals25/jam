@@ -1,17 +1,19 @@
 package com.tang.chat.common.dto;
 
+import com.tang.core.dto.LeaveRoomDto;
 import com.tang.core.type.ErrorCode;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
-@AllArgsConstructor
+@Setter
 @NoArgsConstructor
-@Builder
-public class ErrorResponse {
+@AllArgsConstructor
+public class LeaveRoomResponse extends LeaveRoomDto {
 
   private ErrorCode errorCode;
+
   private String message;
 }

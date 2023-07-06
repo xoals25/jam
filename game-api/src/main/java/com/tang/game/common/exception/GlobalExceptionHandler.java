@@ -1,7 +1,7 @@
 package com.tang.game.common.exception;
 
-import static com.tang.game.common.type.ErrorCode.INTERNAL_SERVER_ERROR;
-import static com.tang.game.common.type.ErrorCode.INVALID_REQUEST;
+import static com.tang.core.type.ErrorCode.INTERNAL_SERVER_ERROR;
+import static com.tang.core.type.ErrorCode.INVALID_REQUEST;
 
 import com.tang.game.common.dto.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.tang.game.user.service;
 
 import com.tang.game.common.exception.JamGameException;
-import com.tang.game.common.type.ErrorCode;
+import com.tang.core.type.ErrorCode;
 import com.tang.game.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

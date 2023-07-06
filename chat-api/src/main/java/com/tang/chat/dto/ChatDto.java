@@ -26,4 +26,11 @@ public class ChatDto {
         .message(requestForm.getMessage())
         .build();
   }
+
+  protected void setChatDto(ChatDto chatDto) {
+    this.setType(chatDto.getType());
+    this.setSenderId(chatDto.getSenderId());
+    this.setRoomId(chatDto.getRoomId());
+    this.setMessage(chatDto.getMessage());
+  }
 }
