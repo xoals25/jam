@@ -1,7 +1,7 @@
-package com.tang.game.token.Service;
+package com.tang.game.token.service;
 
-import static com.tang.game.token.utils.Constants.KEY_ROLES;
-import static com.tang.game.token.utils.Constants.TOKEN_PREFIX;
+import static com.tang.core.constants.TokenConstants.KEY_ROLES;
+import static com.tang.core.constants.TokenConstants.TOKEN_PREFIX;
 
 import com.tang.game.token.dto.JwtTokenDto;
 import com.tang.game.user.domain.User;
@@ -59,7 +59,7 @@ public class TokenProvider {
   public String newGenerateAccessToken(User user) {
     Claims claims = Jwts.claims()
         .setSubject(user.getSignupPath() + "&&" + user.getEmail())
-        .setId(user.getId().toString());
+        .setId(String.valueOf(user.getId()));
     claims.put(KEY_ROLES, Collections.singletonList(user.getStatus().getKey()));
 
     Date now = new Date();

@@ -1,4 +1,4 @@
-package com.tang.game.config;
+package com.tang.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;

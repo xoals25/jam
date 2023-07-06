@@ -1,4 +1,4 @@
-package com.tang.game.room.dto;
+package com.tang.game.participant.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,12 +11,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RoomParticipantCount {
+public class ParticipantCount {
   private int limitedNumberPeople;
   private int currentNumberPeople;
 
-  public static RoomParticipantCount of(int limitCount, int currentCount) {
-    return RoomParticipantCount.builder()
+  public static ParticipantCount of(int limitCount, int currentCount) {
+    return ParticipantCount.builder()
         .limitedNumberPeople(limitCount)
         .currentNumberPeople(currentCount)
         .build();

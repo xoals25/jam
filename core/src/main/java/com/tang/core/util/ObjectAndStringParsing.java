@@ -1,4 +1,4 @@
-package com.tang.game.common.util;
+package com.tang.core.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

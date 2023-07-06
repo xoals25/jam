@@ -1,4 +1,4 @@
-package com.tang.game.common.type;
+package com.tang.core.type;
 
 public enum GameType {
   ALL,

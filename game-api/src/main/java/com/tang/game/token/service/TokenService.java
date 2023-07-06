@@ -1,7 +1,7 @@
-package com.tang.game.token.Service;
+package com.tang.game.token.service;
 
 import com.tang.game.common.exception.JamGameException;
-import com.tang.game.common.type.ErrorCode;
+import com.tang.core.type.ErrorCode;
 import com.tang.game.token.domain.Token;
 import com.tang.game.token.repository.TokenRepository;
 import com.tang.game.user.domain.User;

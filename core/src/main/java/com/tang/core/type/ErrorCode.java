@@ -1,4 +1,4 @@
-package com.tang.game.common.type;
+package com.tang.core.type;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -35,6 +35,9 @@ public enum ErrorCode {
   // oauth
   OAUTH_SING_UP_REQUIRE_EMAIL("이메일 동의가 반드시 필요합니다."),
   DELETE_YET_REMAIN_7DAYS("탈퇴 한지 7일을 넘지 않았습니다. (탈퇴 철회 필요)"),
+
+  // chat
+  NOT_FOUND_SESSION_ID("존재하지 않는 세션 ID 입니다."),
 
   ;
 
