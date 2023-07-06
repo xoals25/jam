@@ -1,10 +1,11 @@
 package com.tang.game.participant.domain;
 
-import static com.tang.game.participant.type.ParticipantStatus.WAIT;
+import static com.tang.core.type.ParticipantStatus.WAIT;
 
 import com.tang.core.domain.BaseEntity;
-import com.tang.game.participant.type.ParticipantStatus;
+import com.tang.core.type.ParticipantStatus;
 import com.tang.game.room.domain.Room;
+import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -17,6 +18,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.AuditOverride;
 
 @Getter
@@ -26,6 +28,7 @@ import org.hibernate.envers.AuditOverride;
 @NoArgsConstructor
 @AllArgsConstructor
 @AuditOverride(forClass = BaseEntity.class)
+@SQLDelete(sql = "UPDATE participant SET deleted_at = current_timestamp WHERE id = ? AND status != 'LEAVE'")
 public class Participant extends BaseEntity {
 
   @Id
@@ -39,6 +42,8 @@ public class Participant extends BaseEntity {
 
   @Enumerated(EnumType.STRING)
   private ParticipantStatus status;
+
+  private LocalDateTime deletedAt;
 
   public static Participant from(Room room) {
     return Participant.builder()

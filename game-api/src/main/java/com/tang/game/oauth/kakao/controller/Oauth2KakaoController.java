@@ -1,6 +1,6 @@
 package com.tang.game.oauth.kakao.controller;
 
-import static com.tang.game.token.utils.Constants.tokenResponse;
+import static com.tang.game.token.constant.TokenResponseConstant.tokenResponse;
 
 import com.tang.game.oauth.kakao.service.Oauth2KakaoService;
 import com.tang.game.user.domain.User;

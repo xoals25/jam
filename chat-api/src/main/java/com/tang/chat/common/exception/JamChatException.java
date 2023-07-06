@@ -1,7 +1,7 @@
 package com.tang.chat.common.exception;
 
 
-import com.tang.chat.common.type.ErrorCode;
+import com.tang.core.type.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,5 +21,10 @@ public class JamChatException extends RuntimeException {
   public JamChatException(ErrorCode errorCode) {
     this.errorCode = errorCode;
     this.message = errorCode.getDescription();
+  }
+
+  @Override
+  public String toString() {
+    return String.format("{\"errorCode\":\"%s\", \"message\":\"%s\"}", this.errorCode, this.message);
   }
 }

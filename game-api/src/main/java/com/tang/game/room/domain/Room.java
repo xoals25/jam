@@ -1,29 +1,26 @@
 package com.tang.game.room.domain;
 
 import com.tang.core.domain.BaseEntity;
-import com.tang.game.common.type.GameType;
+import com.tang.core.type.GameType;
+import com.tang.core.type.TeamType;
 import com.tang.game.common.type.RoomStatus;
-import com.tang.game.common.type.TeamType;
 import com.tang.game.participant.domain.Participant;
 import com.tang.game.room.dto.RoomForm;
+import com.tang.game.room.type.GameStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.AuditOverride;
 
@@ -33,16 +30,15 @@ import org.hibernate.envers.AuditOverride;
 @AllArgsConstructor
 @Builder
 @Entity
-@ToString
 @AuditOverride(forClass = BaseEntity.class)
 @SQLDelete(sql = "UPDATE room SET deleted_at = current_timestamp, status = 'DELETE' WHERE id = ?")
 public class Room extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private long id;
 
-  private Long hostUserId;
+  private long hostUserId;
 
   private String title;
 
@@ -53,9 +49,7 @@ public class Room extends BaseEntity {
   @OneToMany(mappedBy = "room", orphanRemoval = true)
   private List<Participant> participants;
 
-  @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
-  @JoinColumn(name = "room_game_status_id", referencedColumnName = "id")
-  private RoomGameStatus roomGameStatus;
+  private GameStatus gameStatus;
 
   @Enumerated(EnumType.STRING)
   private GameType gameType;
@@ -73,6 +67,7 @@ public class Room extends BaseEntity {
         .hostUserId(form.getUserId())
         .title(form.getTitle())
         .password(form.getPassword())
+        .gameStatus(GameStatus.WAIT)
         .limitedNumberPeople(form.getLimitedNumberPeople())
         .gameType(form.getGameType())
         .teamType(form.getTeamType())

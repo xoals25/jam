@@ -1,8 +1,8 @@
 package com.tang.game.token.filter;
 
-import static com.tang.game.token.utils.Constants.TOKEN_PREFIX;
+import static com.tang.core.constants.TokenConstants.TOKEN_PREFIX;
 
-import com.tang.game.token.Service.TokenProvider;
+import com.tang.game.token.service.TokenProvider;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;

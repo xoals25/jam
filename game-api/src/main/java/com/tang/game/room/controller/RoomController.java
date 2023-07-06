@@ -1,7 +1,9 @@
 package com.tang.game.room.controller;
 
-import com.tang.game.common.type.GameType;
-import com.tang.game.common.type.TeamType;
+import com.tang.game.room.dto.EnterRoomDto;
+import com.tang.core.dto.LeaveRoomDto;
+import com.tang.core.type.GameType;
+import com.tang.core.type.TeamType;
 import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.service.RoomService;
@@ -39,7 +41,7 @@ public class RoomController {
   }
 
   @PostMapping("/{roomId}/enter")
-  public ResponseEntity<String> enterRoom(
+  public ResponseEntity<EnterRoomDto> enterRoom(
       @AuthenticationPrincipal User user,
       @PathVariable Long roomId
   ) {
@@ -47,7 +49,7 @@ public class RoomController {
   }
 
   @PostMapping("/{roomId}/leave")
-  public ResponseEntity<String> leaveRoom(
+  public ResponseEntity<LeaveRoomDto> leaveRoom(
       @AuthenticationPrincipal User user,
       @PathVariable Long roomId
   ) {
@@ -85,13 +87,5 @@ public class RoomController {
       @AuthenticationPrincipal User user,
       @PathVariable Long roomId) {
     roomService.deleteRoom(user, roomId);
-  }
-
-  @GetMapping("/{roomId}/participants/{participantUserId}")
-  public ResponseEntity<Boolean> isRoomParticipant(
-      @PathVariable Long roomId,
-      @PathVariable Long participantUserId
-  ) {
-    return ResponseEntity.ok(roomService.isRoomParticipant(roomId, participantUserId));
   }
 }

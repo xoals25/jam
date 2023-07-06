@@ -1,6 +1,6 @@
 package com.tang.game.token.controller;
 
-import com.tang.game.token.Service.TokenService;
+import com.tang.game.token.service.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

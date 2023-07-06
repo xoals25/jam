@@ -1,6 +1,6 @@
 package com.tang.chat.common.dto;
 
-import com.tang.chat.common.type.ErrorCode;
+import com.tang.core.type.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

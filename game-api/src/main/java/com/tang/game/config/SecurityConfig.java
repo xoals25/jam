@@ -42,6 +42,7 @@ public class SecurityConfig {
 
         .authorizeRequests()
 
+//        .antMatchers("/**")
         .antMatchers(
             "/oauth2/kakao/**",
             "/tokens/refresh/**",
@@ -53,8 +54,7 @@ public class SecurityConfig {
         .antMatchers("/**").hasAuthority(UserStatus.VALID.getKey())
         .and()
         .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
-        .logout()
-        .and()
+//        .logout()
     ;
 
     return http.build();
@@ -68,7 +68,9 @@ public class SecurityConfig {
 
     config.setAllowedOrigins(Arrays.asList(
         "http://localhost:8081",
+        "http://localhost:8082",
         "http://127.0.0.1:8081",
+        "http://127.0.0.1:8082",
         "http://localhost:63343",
         "http://127.0.0.1:63343"
     ));

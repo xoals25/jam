@@ -4,8 +4,8 @@ import static com.tang.core.type.SignupPath.JAM;
 import static com.tang.game.user.type.UserStatus.VALID;
 
 import com.tang.game.common.exception.JamGameException;
-import com.tang.game.common.type.ErrorCode;
-import com.tang.game.token.Service.TokenProvider;
+import com.tang.core.type.ErrorCode;
+import com.tang.game.token.service.TokenProvider;
 import com.tang.game.token.domain.Token;
 import com.tang.game.token.dto.JwtTokenDto;
 import com.tang.game.token.repository.TokenRepository;
@@ -53,7 +53,13 @@ public class UserService {
         Collections.singletonList(user.getStatus().getKey())
     );
 
-    tokenRepository.save(Token.of(user.getId(), jwtTokenDto));
+    tokenRepository.findByUserId(user.getId()).ifPresentOrElse(
+        (token) -> {
+          token.setJwtAccessToken(jwtTokenDto.getJwtAccessToken());
+          token.setJwtRefreshToken(jwtTokenDto.getJwtRefreshToken());
+        },
+        () ->  tokenRepository.save(Token.of(user.getId(), jwtTokenDto))
+    );
 
     return jwtTokenDto;
   }
