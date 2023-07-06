@@ -29,7 +29,7 @@ import com.tang.core.type.TeamType;
 import com.tang.game.room.dto.RoomDto;
 import com.tang.game.room.dto.RoomForm;
 import com.tang.game.room.service.RoomService;
-import com.tang.game.token.service.TokenProvider;
+import com.tang.game.token.Service.TokenProvider;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;

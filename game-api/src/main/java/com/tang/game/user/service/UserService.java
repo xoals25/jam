@@ -5,7 +5,7 @@ import static com.tang.game.user.type.UserStatus.VALID;
 
 import com.tang.game.common.exception.JamGameException;
 import com.tang.core.type.ErrorCode;
-import com.tang.game.token.service.TokenProvider;
+import com.tang.game.token.Service.TokenProvider;
 import com.tang.game.token.domain.Token;
 import com.tang.game.token.dto.JwtTokenDto;
 import com.tang.game.token.repository.TokenRepository;

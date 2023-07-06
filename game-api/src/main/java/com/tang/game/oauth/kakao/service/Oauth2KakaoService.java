@@ -11,7 +11,7 @@ import com.tang.game.oauth.kakao.dto.KakaoAccount;
 import com.tang.game.oauth.kakao.dto.KakaoOauthTokenAndScope;
 import com.tang.game.oauth.kakao.dto.KakaoOauthUserInfo;
 import com.tang.game.oauth.kakao.dto.KakaoProfile;
-import com.tang.game.token.service.TokenProvider;
+import com.tang.game.token.Service.TokenProvider;
 import com.tang.game.token.domain.Token;
 import com.tang.game.token.dto.JwtTokenDto;
 import com.tang.game.token.repository.TokenRepository;

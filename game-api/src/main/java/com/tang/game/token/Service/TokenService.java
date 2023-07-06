@@ -1,4 +1,4 @@
-package com.tang.game.token.service;
+package com.tang.game.token.Service;
 
 import com.tang.game.common.exception.JamGameException;
 import com.tang.core.type.ErrorCode;

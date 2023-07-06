@@ -1,4 +1,5 @@
-package com.tang.game.token.service;
+package com.tang.game.token.Service;
+
 
 import static com.tang.core.constants.TokenConstants.KEY_ROLES;
 import static com.tang.core.constants.TokenConstants.TOKEN_PREFIX;
